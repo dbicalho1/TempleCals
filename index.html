@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Temple Cals</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Welcome to Temple Cals</h1>
+    <!-- Add navigation, forms, and other elements here -->
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyAjN5SQjWSeXC-zZqvIwtYR5_PnLb3o7_8",
+            authDomain: "templecals.firebaseapp.com",
+            projectId: "templecals",
+            storageBucket: "templecals.appspot.com",
+            messagingSenderId: "194842097855",
+            appId: "1:194842097855:web:f6655b8d3fb6980762ae0a",
+            measurementId: "G-2BCTH9DEYM"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <!-- Sign-Up Form -->
+    <form id="signup-form">
+        <input type="email" id="signup-email" placeholder="Email" required>
+        <input type="password" id="signup-password" placeholder="Password" required>
+        <button type="submit">Sign Up</button>
+    </form>
+
+    <!-- Login Form -->
+    <form id="login-form">
+        <input type="email" id="login-email" placeholder="Email" required>
+        <input type="password" id="login-password" placeholder="Password" required>
+        <button type="submit">Log In</button>
+    </form>
+
+    <!-- Sign-Up Script -->
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', signUp);
+
+        function signUp(e) {
+            e.preventDefault();
+            var email = document.getElementById('signup-email').value;
+            var password = document.getElementById('signup-password').value;
+
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    alert('User signed up!');
+                })
+                .catch((error) => {
+                    console.error(error);
+                    alert(error.message);
+                });
+        }
+    </script>
+
+    <!-- Login Script -->
+    <script>
+        document.getElementById('login-form').addEventListener('submit', logIn);
+
+        function logIn(e) {
+            e.preventDefault();
+            var email = document.getElementById('login-email').value;
+            var password = document.getElementById('login-password').value;
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    alert('User logged in!');
+                })
+                .catch((error) => {
+                    console.error(error);
+                    alert(error.message);
+                });
+        }
+    </script>
+
+</body>
+</html>
+
+
