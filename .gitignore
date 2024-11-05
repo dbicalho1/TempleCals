@@ -1,0 +1,5 @@
+# Ignore macOS system files
+.DS_Store
+
+# Ignore Firebase service account JSON file for security
+backend/src/main/resources/serviceAccountKey.json
