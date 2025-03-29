@@ -48,7 +48,15 @@ const Header = () => {
               mb: 1,
               backgroundColor: location.pathname === item.path ? 'rgba(158, 27, 52, 0.08)' : 'transparent',
               '&:hover': {
-                backgroundColor: location.pathname === item.path ? 'rgba(158, 27, 52, 0.12)' : 'rgba(0, 0, 0, 0.04)',
+                backgroundColor: location.pathname === item.path ? 'rgba(158, 27, 52, 0.12)' : 'rgba(128, 0, 0, 0.08)',
+              },
+              '&:focus': {
+                outline: 'none',
+                boxShadow: 'none',
+              },
+              '&.Mui-focusVisible': {
+                outline: '2px solid #800000',
+                outlineOffset: 2,
               },
             }}
           >
@@ -90,7 +98,10 @@ const Header = () => {
               color: theme.palette.primary.main,
               textDecoration: 'none',
               display: 'flex',
-              alignItems: 'center'
+              alignItems: 'center',
+              '&:hover': {
+                color: '#800000', // Temple-themed maroon color on hover
+              }
             }}
           >
             <Box 
@@ -105,7 +116,24 @@ const Header = () => {
           </Typography>
 
           <Tooltip title={mode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}>
-            <IconButton onClick={toggleColorMode} color="primary" sx={{ mr: isMobile ? 0 : 2 }}>
+            <IconButton 
+              onClick={toggleColorMode} 
+              sx={{ 
+                mr: isMobile ? 0 : 2,
+                color: theme.palette.primary.main,
+                '&:hover': {
+                  backgroundColor: 'rgba(128, 0, 0, 0.08)', // Subtle maroon background on hover
+                },
+                '&:focus': {
+                  outline: 'none',
+                  boxShadow: 'none'
+                },
+                '&.Mui-focusVisible': {
+                  outline: `2px solid #800000`,
+                  outlineOffset: 2
+                }
+              }}
+            >
               {mode === 'light' ? <Brightness4Icon /> : <Brightness7Icon />}
             </IconButton>
           </Tooltip>
@@ -136,7 +164,18 @@ const Header = () => {
                       fontWeight: 500,
                       borderRadius: 2,
                       px: 2,
-                      ...(isActive ? {} : { color: 'text.primary' })
+                      ...(isActive ? {} : { color: 'text.primary' }),
+                      '&:hover': {
+                        backgroundColor: isActive ? undefined : 'rgba(128, 0, 0, 0.08)', // Maroon hover for non-active buttons
+                      },
+                      '&:focus': {
+                        outline: 'none',
+                        boxShadow: 'none'
+                      },
+                      '&.Mui-focusVisible': {
+                        outline: `2px solid #800000`,
+                        outlineOffset: 2
+                      }
                     }}
                   >
                     {item.text}

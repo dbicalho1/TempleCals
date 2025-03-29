@@ -5,6 +5,32 @@ import { ThemeOptions } from '@mui/material';
 // Cherry: #9E1B34
 
 // Create theme based on mode (light or dark)
+// Global styles to override MUI default focus visible styles
+const globalStyles = {
+  '& .MuiButtonBase-root': {
+    '&:focus': {
+      outline: 'none !important',
+    },
+    '&.Mui-focusVisible': {
+      outline: '2px solid #800000 !important',
+      outlineOffset: '2px !important',
+    },
+  },
+  '& .MuiIconButton-root': {
+    '&:focus': {
+      outline: 'none !important',
+      backgroundColor: 'rgba(128, 0, 0, 0.04) !important',
+    },
+    '&:hover': {
+      backgroundColor: 'rgba(128, 0, 0, 0.08) !important',
+    },
+    '&.Mui-focusVisible': {
+      outline: '2px solid #800000 !important',
+      outlineOffset: '2px !important',
+    },
+  },
+};
+
 export const getThemeOptions = (mode: PaletteMode): ThemeOptions => ({
   palette: {
     mode,
@@ -99,6 +125,9 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     borderRadius: 8,
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: globalStyles,
+    },
     MuiAppBar: {
       styleOverrides: {
         root: {
@@ -115,11 +144,24 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => ({
           fontWeight: 600,
           padding: '8px 16px',
           boxShadow: 'none',
+          '&:focus': {
+            outline: 'none',
+            boxShadow: 'none',
+          },
+          '&.Mui-focusVisible': {
+            outline: '2px solid #800000',
+            outlineOffset: 2,
+          },
         },
         containedPrimary: {
           '&:hover': {
             backgroundColor: '#711927',
             boxShadow: '0 4px 12px rgba(255, 90, 95, 0.2)',
+          },
+        },
+        text: {
+          '&:hover': {
+            backgroundColor: 'rgba(128, 0, 0, 0.08)',
           },
         },
       },

@@ -100,15 +100,31 @@ const Search = () => {
       
       <TableContainer component={Paper}>
         <Table>
-          <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+          <TableHead sx={{
+            backgroundColor: theme => theme.palette.mode === 'light' ? '#f5f5f5' : '#800000', // Temple maroon in dark mode
+          }}>
             <TableRow>
-              <TableCell><Typography variant="subtitle2">Food Item</Typography></TableCell>
-              <TableCell><Typography variant="subtitle2">Source</Typography></TableCell>
-              <TableCell><Typography variant="subtitle2">Serving Size</Typography></TableCell>
-              <TableCell><Typography variant="subtitle2">Calories</Typography></TableCell>
-              <TableCell><Typography variant="subtitle2">Protein (g)</Typography></TableCell>
-              <TableCell><Typography variant="subtitle2">Carbs (g)</Typography></TableCell>
-              <TableCell><Typography variant="subtitle2">Fat (g)</Typography></TableCell>
+              <TableCell>
+                <Typography variant="subtitle2" sx={{ color: theme => theme.palette.mode === 'dark' ? '#ffffff' : 'inherit' }}>Food Item</Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle2" sx={{ color: theme => theme.palette.mode === 'dark' ? '#ffffff' : 'inherit' }}>Source</Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle2" sx={{ color: theme => theme.palette.mode === 'dark' ? '#ffffff' : 'inherit' }}>Serving Size</Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle2" sx={{ color: theme => theme.palette.mode === 'dark' ? '#ffffff' : 'inherit' }}>Calories</Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle2" sx={{ color: theme => theme.palette.mode === 'dark' ? '#ffffff' : 'inherit' }}>Protein (g)</Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle2" sx={{ color: theme => theme.palette.mode === 'dark' ? '#ffffff' : 'inherit' }}>Carbs (g)</Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle2" sx={{ color: theme => theme.palette.mode === 'dark' ? '#ffffff' : 'inherit' }}>Fat (g)</Typography>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
