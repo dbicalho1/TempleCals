@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   Container, Typography, Paper, Box, Grid as MuiGrid, Divider, Card, CardContent,
-  LinearProgress, Stack, useTheme
+  LinearProgress, Stack, useTheme, Chip
 } from '@mui/material';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -32,6 +32,7 @@ const Grid = MuiGrid as any;
 const Dashboard = () => {
   const theme = useTheme();
   const [meals, setMeals] = useState<MealEntry[]>([]);
+  const [groupedMeals, setGroupedMeals] = useState<Array<MealEntry & { count: number }>>([]);
   const [dailyTotals, setDailyTotals] = useState({
     totalCalories: 0,
     totalProtein: 0,
@@ -50,10 +51,35 @@ const Dashboard = () => {
   // Get today's date in YYYY-MM-DD format
   const today = new Date().toISOString().split('T')[0];
 
+  // Function to group identical meals together
+  const groupIdenticalMeals = (mealEntries: MealEntry[]) => {
+    const mealGroups: Record<string, MealEntry & { count: number }> = {};
+    
+    mealEntries.forEach(meal => {
+      // Create a unique key based on meal properties
+      const mealKey = `${meal.description}-${meal.totalCalories}-${meal.totalProtein}-${meal.totalCarbs}-${meal.totalFat}`;
+      
+      if (mealGroups[mealKey]) {
+        // Increment count if this meal already exists
+        mealGroups[mealKey].count += 1;
+      } else {
+        // Add new meal with count of 1
+        mealGroups[mealKey] = { ...meal, count: 1 };
+      }
+    });
+    
+    // Convert the object to an array
+    return Object.values(mealGroups);
+  };
+
   useEffect(() => {
     // Load today's meals
     const todaysMeals = getMealEntriesByDate(today);
     setMeals(todaysMeals);
+    
+    // Group identical meals
+    const grouped = groupIdenticalMeals(todaysMeals);
+    setGroupedMeals(grouped);
     
     // Calculate daily totals
     const totals = getDailyTotals(today);
@@ -394,21 +420,30 @@ const Dashboard = () => {
               </Box>
               
               <Box sx={{ maxHeight: 320, overflow: 'auto', pr: 1 }}>
-                {meals.length > 0 ? (
-                  meals.map((meal) => (
+                {groupedMeals.length > 0 ? (
+                  groupedMeals.map((meal) => (
                     <Box key={meal.id} sx={{ mb: 3 }}>
                       <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                        <Typography 
-                          variant="subtitle1" 
-                          fontWeight="medium"
-                          sx={{ 
-                            maxWidth: 'calc(100% - 80px)', 
-                            wordWrap: 'break-word',
-                            overflowWrap: 'break-word'
-                          }}
-                        >
-                          {meal.description}
-                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', maxWidth: 'calc(100% - 80px)' }}>
+                          <Typography 
+                            variant="subtitle1" 
+                            fontWeight="medium"
+                            sx={{ 
+                              wordWrap: 'break-word',
+                              overflowWrap: 'break-word'
+                            }}
+                          >
+                            {meal.description}
+                          </Typography>
+                          {meal.count > 1 && (
+                            <Chip 
+                              label={`x${meal.count}`} 
+                              size="small" 
+                              color="primary" 
+                              sx={{ ml: 1, height: 20, fontSize: '0.7rem' }}
+                            />
+                          )}
+                        </Box>
                         <Typography 
                           variant="subtitle2" 
                           fontWeight="bold" 
