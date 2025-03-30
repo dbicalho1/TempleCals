@@ -149,6 +149,12 @@ const Dashboard = () => {
   const carbsProgress = calculateProgress(dailyTotals.totalCarbs, goals.carbs);
   const fatProgress = calculateProgress(dailyTotals.totalFat, goals.fat);
 
+  // Check if goals are exceeded
+  const isCaloriesExceeded = dailyTotals.totalCalories > goals.calories;
+  const isProteinExceeded = dailyTotals.totalProtein > goals.protein;
+  const isCarbsExceeded = dailyTotals.totalCarbs > goals.carbs;
+  const isFatExceeded = dailyTotals.totalFat > goals.fat;
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ mb: 4 }}>
@@ -203,6 +209,11 @@ const Dashboard = () => {
               <Typography variant="body2" color="text.secondary">
                 {caloriesProgress}% of daily goal
               </Typography>
+              {isCaloriesExceeded && (
+                <Typography variant="body2" color="error" sx={{ mt: 1, fontWeight: 'medium' }}>
+                  Warning! You are over the calorie limit
+                </Typography>
+              )}
             </CardContent>
           </Card>
         </Grid>
@@ -249,6 +260,11 @@ const Dashboard = () => {
               <Typography variant="body2" color="text.secondary">
                 {proteinProgress}% of daily goal
               </Typography>
+              {isProteinExceeded && (
+                <Typography variant="body2" color="error" sx={{ mt: 1, fontWeight: 'medium' }}>
+                  Warning! You are over the protein limit
+                </Typography>
+              )}
             </CardContent>
           </Card>
         </Grid>
@@ -295,6 +311,11 @@ const Dashboard = () => {
               <Typography variant="body2" color="text.secondary">
                 {carbsProgress}% of daily goal
               </Typography>
+              {isCarbsExceeded && (
+                <Typography variant="body2" color="error" sx={{ mt: 1, fontWeight: 'medium' }}>
+                  Warning! You are over the carb limit
+                </Typography>
+              )}
             </CardContent>
           </Card>
         </Grid>
@@ -341,6 +362,11 @@ const Dashboard = () => {
               <Typography variant="body2" color="text.secondary">
                 {fatProgress}% of daily goal
               </Typography>
+              {isFatExceeded && (
+                <Typography variant="body2" color="error" sx={{ mt: 1, fontWeight: 'medium' }}>
+                  Warning! You are over the fat limit
+                </Typography>
+              )}
             </CardContent>
           </Card>
         </Grid>
@@ -371,11 +397,24 @@ const Dashboard = () => {
                 {meals.length > 0 ? (
                   meals.map((meal) => (
                     <Box key={meal.id} sx={{ mb: 3 }}>
-                      <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Typography variant="subtitle1" fontWeight="medium">
+                      <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                        <Typography 
+                          variant="subtitle1" 
+                          fontWeight="medium"
+                          sx={{ 
+                            maxWidth: 'calc(100% - 80px)', 
+                            wordWrap: 'break-word',
+                            overflowWrap: 'break-word'
+                          }}
+                        >
                           {meal.description}
                         </Typography>
-                        <Typography variant="subtitle2" fontWeight="bold" color="primary.main">
+                        <Typography 
+                          variant="subtitle2" 
+                          fontWeight="bold" 
+                          color="primary.main"
+                          sx={{ minWidth: '70px', textAlign: 'right', flexShrink: 0 }}
+                        >
                           {meal.totalCalories} cal
                         </Typography>
                       </Stack>
