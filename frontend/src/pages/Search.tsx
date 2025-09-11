@@ -14,44 +14,26 @@ const Search = () => {
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
 
   useEffect(() => {
-    // Get all food items on initial load
     const items = searchFoodItems('');
-    
-    // Extract unique sources for filtering
-    const uniqueSources = Array.from(new Set(items.map(item => item.source)));
-    setSources(uniqueSources);
-    
-    // Set initial search results to all items
+    setSources(Array.from(new Set(items.map(item => item.source))));
     setSearchResults(items);
   }, []);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    
-    // Filter by search query
     let results = searchFoodItems(query);
-    
-    // Apply source filter if selected
     if (selectedSource) {
       results = results.filter(item => item.source === selectedSource);
     }
-    
     setSearchResults(results);
   };
 
   const handleSourceFilter = (source: string) => {
     if (selectedSource === source) {
-      // Deselect if already selected
       setSelectedSource(null);
-      
-      // Reapply just the search query
-      const results = searchFoodItems(searchQuery);
-      setSearchResults(results);
+      setSearchResults(searchFoodItems(searchQuery));
     } else {
-      // Select new source
       setSelectedSource(source);
-      
-      // Filter by both search query and selected source
       const results = searchFoodItems(searchQuery).filter(
         item => item.source === source
       );
@@ -101,7 +83,7 @@ const Search = () => {
       <TableContainer component={Paper}>
         <Table>
           <TableHead sx={{
-            backgroundColor: theme => theme.palette.mode === 'light' ? '#f5f5f5' : '#800000', // Temple maroon in dark mode
+            backgroundColor: theme => theme.palette.mode === 'light' ? 'grey.100' : 'primary.main',
           }}>
             <TableRow>
               <TableCell>

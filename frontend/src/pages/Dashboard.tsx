@@ -40,7 +40,6 @@ const Dashboard = () => {
     totalFat: 0
   });
   
-  // Define nutritional goals
   const goals = {
     calories: 2000,
     protein: 50,
@@ -48,45 +47,30 @@ const Dashboard = () => {
     fat: 65
   };
 
-  // Get today's date in YYYY-MM-DD format
   const today = new Date().toISOString().split('T')[0];
 
-  // Function to group identical meals together
   const groupIdenticalMeals = (mealEntries: MealEntry[]) => {
     const mealGroups: Record<string, MealEntry & { count: number }> = {};
     
     mealEntries.forEach(meal => {
-      // Create a unique key based on meal properties
       const mealKey = `${meal.description}-${meal.totalCalories}-${meal.totalProtein}-${meal.totalCarbs}-${meal.totalFat}`;
       
       if (mealGroups[mealKey]) {
-        // Increment count if this meal already exists
         mealGroups[mealKey].count += 1;
       } else {
-        // Add new meal with count of 1
         mealGroups[mealKey] = { ...meal, count: 1 };
       }
     });
-    
-    // Convert the object to an array
     return Object.values(mealGroups);
   };
 
   useEffect(() => {
-    // Load today's meals
     const todaysMeals = getMealEntriesByDate(today);
     setMeals(todaysMeals);
-    
-    // Group identical meals
-    const grouped = groupIdenticalMeals(todaysMeals);
-    setGroupedMeals(grouped);
-    
-    // Calculate daily totals
-    const totals = getDailyTotals(today);
-    setDailyTotals(totals);
+    setGroupedMeals(groupIdenticalMeals(todaysMeals));
+    setDailyTotals(getDailyTotals(today));
   }, [today]);
 
-  // Nutrition data for the chart
   const chartData = {
     labels: ['Protein', 'Carbs', 'Fat'],
     datasets: [
@@ -165,17 +149,14 @@ const Dashboard = () => {
     }
   };
 
-  // Calculate progress percentages
-  const calculateProgress = (current: number, goal: number) => {
-    return Math.min(Math.round((current / goal) * 100), 100);
-  };
+  const calculateProgress = (current: number, goal: number) => 
+    Math.min(Math.round((current / goal) * 100), 100);
 
   const caloriesProgress = calculateProgress(dailyTotals.totalCalories, goals.calories);
   const proteinProgress = calculateProgress(dailyTotals.totalProtein, goals.protein);
   const carbsProgress = calculateProgress(dailyTotals.totalCarbs, goals.carbs);
   const fatProgress = calculateProgress(dailyTotals.totalFat, goals.fat);
 
-  // Check if goals are exceeded
   const isCaloriesExceeded = dailyTotals.totalCalories > goals.calories;
   const isProteinExceeded = dailyTotals.totalProtein > goals.protein;
   const isCarbsExceeded = dailyTotals.totalCarbs > goals.carbs;
@@ -422,15 +403,41 @@ const Dashboard = () => {
               <Box sx={{ maxHeight: 320, overflow: 'auto', pr: 1 }}>
                 {groupedMeals.length > 0 ? (
                   groupedMeals.map((meal) => (
-                    <Box key={meal.id} sx={{ mb: 3 }}>
-                      <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', maxWidth: 'calc(100% - 80px)' }}>
+                    <Box 
+                      key={meal.id} 
+                      sx={{ 
+                        mb: 2,
+                        pb: 2,
+                        borderBottom: 1, 
+                        borderColor: 'divider',
+                        width: '100%'
+                      }}
+                    >
+                      {/* Meal Header Row - Title and Calories */}
+                      <Box 
+                        sx={{ 
+                          display: 'grid',
+                          gridTemplateColumns: 'minmax(0, 1fr) 80px',
+                          width: '100%',
+                          mb: 1.5,
+                          alignItems: 'center'
+                        }}
+                      >
+                        {/* Meal Title with Count Badge */}
+                        <Box sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center',
+                          minWidth: 0, // Allows text to truncate properly
+                          pr: 1
+                        }}>
                           <Typography 
                             variant="subtitle1" 
                             fontWeight="medium"
                             sx={{ 
-                              wordWrap: 'break-word',
-                              overflowWrap: 'break-word'
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              mr: meal.count > 1 ? 1 : 0
                             }}
                           >
                             {meal.description}
@@ -440,20 +447,38 @@ const Dashboard = () => {
                               label={`x${meal.count}`} 
                               size="small" 
                               color="primary" 
-                              sx={{ ml: 1, height: 20, fontSize: '0.7rem' }}
+                              sx={{ 
+                                height: 20, 
+                                fontSize: '0.7rem',
+                                flexShrink: 0
+                              }}
                             />
                           )}
                         </Box>
+                        
+                        {/* Calories */}
                         <Typography 
                           variant="subtitle2" 
                           fontWeight="bold" 
                           color="primary.main"
-                          sx={{ minWidth: '70px', textAlign: 'right', flexShrink: 0 }}
+                          sx={{ 
+                            textAlign: 'right',
+                            flexShrink: 0
+                          }}
                         >
                           {meal.totalCalories} cal
                         </Typography>
-                      </Stack>
-                      <Box sx={{ mt: 1, display: 'flex', gap: 2 }}>
+                      </Box>
+                      
+                      {/* Nutrition Details Row */}
+                      <Box 
+                        sx={{ 
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(3, 1fr)',
+                          width: '100%',
+                          gap: 1
+                        }}
+                      >
                         <Typography variant="body2" color="info.main">
                           P: {meal.totalProtein}g
                         </Typography>
@@ -464,7 +489,6 @@ const Dashboard = () => {
                           F: {meal.totalFat}g
                         </Typography>
                       </Box>
-                      <Divider sx={{ mt: 2 }} />
                     </Box>
                   ))
                 ) : (

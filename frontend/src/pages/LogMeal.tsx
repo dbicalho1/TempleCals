@@ -5,7 +5,6 @@ import {
   ListItemText, Divider, Alert, Stack, Chip, useTheme,
   Avatar, IconButton, Fade
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import { addMealEntry, MealEntry, FoodItem } from '../services/mockData';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
@@ -13,7 +12,6 @@ import SendIcon from '@mui/icons-material/Send';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
-// Fix for Grid component TypeScript issues
 const Grid = MuiGrid as any;
 
 const LogMeal = () => {
@@ -34,13 +32,10 @@ const LogMeal = () => {
     
     setIsLoading(true);
     
-    // Simulate a slight delay to show loading state
     setTimeout(() => {
       try {
-        // Add the meal entry using our mock service
         const newEntry = addMealEntry(mealDescription);
         
-        // Check if any food items were found
         if (newEntry.foodItems.length === 0) {
           setError('No matching food items found. Try being more specific or check our food database.');
           setMealEntry(null);
@@ -48,14 +43,10 @@ const LogMeal = () => {
           setIsLoading(false);
           return;
         }
-        
-        // Set the meal entry to display the results
         setMealEntry(newEntry);
         setError('');
         setSuccess(true);
         setIsLoading(false);
-        
-        // Reset form after 5 seconds if successful
         setTimeout(() => {
           if (success) {
             setMealDescription('');
@@ -69,7 +60,7 @@ const LogMeal = () => {
         setSuccess(false);
         setIsLoading(false);
       }
-    }, 800); // Simulate API call delay
+    }, 800);
   };
 
   return (
@@ -100,7 +91,7 @@ const LogMeal = () => {
         </Box>
         
         <CardContent sx={{ p: 3 }}>
-          <Typography variant="body1" paragraph sx={{ color: 'text.secondary' }}>
+          <Typography variant="body1" paragraph color="text.secondary">
             Enter what you ate at Temple University campus. Be specific about food items and locations.
           </Typography>
           
@@ -162,8 +153,6 @@ const LogMeal = () => {
                       '&:hover': {
                         bgcolor: mealDescription.trim() ? 'primary.dark' : 'transparent',
                       },
-                      transition: theme.transitions.create(['background-color', 'transform']),
-                      transform: isLoading ? 'scale(0.9)' : 'scale(1)',
                     }}
                   >
                     <SendIcon fontSize="small" />

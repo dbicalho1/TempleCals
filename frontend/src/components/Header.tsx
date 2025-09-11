@@ -11,7 +11,6 @@ import Brightness7Icon from '@mui/icons-material/Brightness7';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import SearchIcon from '@mui/icons-material/Search';
-
 import { useThemeMode } from './ThemeProvider';
 
 const Header = () => {
@@ -46,17 +45,9 @@ const Header = () => {
             sx={{
               borderRadius: 1,
               mb: 1,
-              backgroundColor: location.pathname === item.path ? 'rgba(158, 27, 52, 0.08)' : 'transparent',
+              backgroundColor: location.pathname === item.path ? 'primary.light' : 'transparent',
               '&:hover': {
-                backgroundColor: location.pathname === item.path ? 'rgba(158, 27, 52, 0.12)' : 'rgba(128, 0, 0, 0.08)',
-              },
-              '&:focus': {
-                outline: 'none',
-                boxShadow: 'none',
-              },
-              '&.Mui-focusVisible': {
-                outline: '2px solid #800000',
-                outlineOffset: 2,
+                backgroundColor: location.pathname === item.path ? 'primary.main' : 'action.hover',
               },
             }}
           >
@@ -100,7 +91,7 @@ const Header = () => {
               display: 'flex',
               alignItems: 'center',
               '&:hover': {
-                color: '#800000', // Temple-themed maroon color on hover
+                color: 'primary.dark',
               }
             }}
           >
@@ -120,18 +111,10 @@ const Header = () => {
               onClick={toggleColorMode} 
               sx={{ 
                 mr: isMobile ? 0 : 2,
-                color: theme.palette.primary.main,
+                color: 'primary.main',
                 '&:hover': {
-                  backgroundColor: 'rgba(128, 0, 0, 0.08)', // Subtle maroon background on hover
+                  backgroundColor: 'action.hover',
                 },
-                '&:focus': {
-                  outline: 'none',
-                  boxShadow: 'none'
-                },
-                '&.Mui-focusVisible': {
-                  outline: `2px solid #800000`,
-                  outlineOffset: 2
-                }
               }}
             >
               {mode === 'light' ? <Brightness4Icon /> : <Brightness7Icon />}
@@ -166,16 +149,8 @@ const Header = () => {
                       px: 2,
                       ...(isActive ? {} : { color: 'text.primary' }),
                       '&:hover': {
-                        backgroundColor: isActive ? undefined : 'rgba(128, 0, 0, 0.08)', // Maroon hover for non-active buttons
+                        backgroundColor: isActive ? undefined : 'action.hover',
                       },
-                      '&:focus': {
-                        outline: 'none',
-                        boxShadow: 'none'
-                      },
-                      '&.Mui-focusVisible': {
-                        outline: `2px solid #800000`,
-                        outlineOffset: 2
-                      }
                     }}
                   >
                     {item.text}
