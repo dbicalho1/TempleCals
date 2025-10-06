@@ -177,44 +177,19 @@ const Landing = () => {
                 background: "linear-gradient(145deg, #F7F7F9 0%, #FFFFFF 60%)",
                 boxShadow: "0 35px 50px -30px rgba(51, 51, 51, 0.35)",
                 border: `1px solid ${palette.lightBorder}`,
-                p: { xs: 3, md: 5 },
+                overflow: "hidden",
               }}
             >
-              <Stack spacing={3}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography
-                    variant="subtitle2"
-                    sx={{ fontWeight: 600, color: palette.cherry }}
-                  >
-                    Dashboard Preview
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    Coming soon: live dashboard screenshots
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    height: { xs: 220, md: 280 },
-                    borderRadius: 3,
-                    background:
-                      "linear-gradient(180deg, rgba(158,27,50,0.12) 0%, rgba(158,27,50,0.04) 100%)",
-                    border: `1px dashed ${palette.cherry}55`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: palette.cherry,
-                    fontWeight: 600,
-                  }}
-                >
-                  TempleCals dashboard mockup placeholder
-                </Box>
-              </Stack>
+              <Box
+                component="img"
+                src="/dashboard-preview.png"
+                alt="TempleCals Dashboard Preview"
+                sx={{
+                  width: "100%",
+                  height: "auto",
+                  display: "block",
+                }}
+              />
             </Box>
           </Stack>
         </Container>
@@ -253,16 +228,17 @@ const Landing = () => {
               living well.
             </Typography>
           </Stack>
-          <Grid
-            container
-            spacing={3}
-            justifyContent="center"
-            alignItems="stretch"
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+              gap: 3,
+            }}
           >
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
-                <Grid key={feature.title} item xs={12} sm={6} md={3}>
+                <Box key={feature.title}>
                   <Card
                     elevation={0}
                     sx={{
@@ -307,17 +283,24 @@ const Landing = () => {
                       </Typography>
                     </CardContent>
                   </Card>
-                </Grid>
+                </Box>
               );
             })}
-          </Grid>
+          </Box>
         </Container>
       </Box>
 
       <Box component="section" sx={{ py: { xs: 10, md: 12 } }}>
         <Container maxWidth="lg">
-          <Grid container spacing={6} alignItems="center">
-            <Grid item xs={12} md={6}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+              gap: 6,
+              alignItems: 'center',
+            }}
+          >
+            <Box>
               <Stack spacing={2}>
                 <Typography
                   variant="overline"
@@ -341,8 +324,8 @@ const Landing = () => {
                   spot trends, and adjust plans before the day ends.
                 </Typography>
               </Stack>
-            </Grid>
-            <Grid item xs={12} md={6}>
+            </Box>
+            <Box>
               <Box
                 sx={{
                   borderRadius: 4,
@@ -432,8 +415,8 @@ const Landing = () => {
                   </Box>
                 </Stack>
               </Box>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </Container>
       </Box>
 
@@ -442,22 +425,33 @@ const Landing = () => {
         sx={{ bgcolor: palette.softGrey, py: { xs: 10, md: 12 } }}
       >
         <Container maxWidth="lg">
-          <Stack spacing={2} sx={{ textAlign: "center", mb: 6 }}>
+          <Stack spacing={2} sx={{ textAlign: "center", mb: 6, alignItems: "center" }}>
             <Typography variant="h3" sx={{ fontWeight: 700 }}>
               Built with real Temple feedback
             </Typography>
             <Typography
               variant="body1"
-              sx={{ color: "text.secondary", maxWidth: 640, mx: "auto" }}
+              sx={{ 
+                color: "text.secondary", 
+                maxWidth: 640,
+                textAlign: "center",
+                lineHeight: 1.7
+              }}
             >
               These reflections come straight from TempleCals progress reviews
               and planning sessions with the project team.
             </Typography>
           </Stack>
           <Box sx={{ maxWidth: 900, mx: "auto" }}>
-            <Grid container spacing={3} justifyContent="center">
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+                gap: 3,
+              }}
+            >
               {testimonials.map((testimonial) => (
-                <Grid key={testimonial.quote} item xs={12} md={6}>
+                <Box key={testimonial.quote}>
                   <Card
                     elevation={0}
                     sx={{
@@ -491,9 +485,9 @@ const Landing = () => {
                       </Typography>
                     </Stack>
                   </Card>
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           </Box>
         </Container>
       </Box>
