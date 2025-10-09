@@ -16,6 +16,7 @@ import FastfoodIcon from "@mui/icons-material/Fastfood";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import SchoolIcon from "@mui/icons-material/School";
+import { motion } from "framer-motion";
 
 type Feature = {
   title: string;
@@ -105,92 +106,117 @@ const Landing = () => {
             textAlign="center"
           >
             <Stack spacing={2} maxWidth={720}>
-              <Typography
-                variant="h2"
-                sx={{
-                  fontWeight: 800,
-                  fontSize: { xs: "2.5rem", md: "3.5rem" },
-                }}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
               >
-                Track Your Nutrition. Reach Your Goals.
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 400,
-                  color: "text.secondary",
-                  lineHeight: 1.6,
-                }}
+                <Typography
+                  variant="h2"
+                  sx={{
+                    fontWeight: 800,
+                    fontSize: { xs: "2.5rem", md: "3.5rem" },
+                  }}
+                >
+                  Track Your Nutrition. Reach Your Goals.
+                </Typography>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
               >
-                TempleCals helps Temple University students stay on top of their
-                health with an easy-to-use nutrition dashboard powered by real
-                campus dining data.
-              </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 400,
+                    color: "text.secondary",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  TempleCals helps Temple University students stay on top of their
+                  health with an easy-to-use nutrition dashboard powered by real
+                  campus dining data.
+                </Typography>
+              </motion.div>
             </Stack>
 
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => navigate("/register")}
-                sx={{
-                  bgcolor: palette.cherry,
-                  color: "#ffffff",
-                  fontWeight: 700,
-                  px: 4,
-                  py: 1.5,
-                  borderRadius: 999,
-                  "&:hover": {
-                    bgcolor: palette.cherryDark,
-                  },
-                }}
-              >
-                Get Started Free
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                onClick={() => navigate("/login")}
-                sx={{
-                  borderColor: palette.cherry,
-                  color: palette.cherry,
-                  fontWeight: 600,
-                  px: 4,
-                  py: 1.5,
-                  borderRadius: 999,
-                  "&:hover": {
-                    borderColor: palette.cherryDark,
-                    color: palette.cherryDark,
-                    bgcolor: "rgba(158, 27, 50, 0.08)",
-                  },
-                }}
-              >
-                Sign In
-              </Button>
-            </Stack>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+            >
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => navigate("/register")}
+                  sx={{
+                    bgcolor: palette.cherry,
+                    color: "#ffffff",
+                    fontWeight: 700,
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: 999,
+                    "&:hover": {
+                      bgcolor: palette.cherryDark,
+                    },
+                  }}
+                >
+                  Get Started Free
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  onClick={() => navigate("/login")}
+                  sx={{
+                    borderColor: palette.cherry,
+                    color: palette.cherry,
+                    fontWeight: 600,
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: 999,
+                    "&:hover": {
+                      borderColor: palette.cherryDark,
+                      color: palette.cherryDark,
+                      bgcolor: "rgba(158, 27, 50, 0.08)",
+                    },
+                  }}
+                >
+                  Sign In
+                </Button>
+              </Stack>
+            </motion.div>
 
-            <Box
-              sx={{
-                width: "100%",
-                maxWidth: 900,
-                borderRadius: 4,
-                background: "linear-gradient(145deg, #F7F7F9 0%, #FFFFFF 60%)",
-                boxShadow: "0 35px 50px -30px rgba(51, 51, 51, 0.35)",
-                border: `1px solid ${palette.lightBorder}`,
-                overflow: "hidden",
-              }}
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.7, delay: 0.45, ease: "easeOut" }}
+              style={{ width: "100%", display: "flex", justifyContent: "center" }}
             >
               <Box
-                component="img"
-                src="/dashboard-preview.png"
-                alt="TempleCals Dashboard Preview"
                 sx={{
                   width: "100%",
-                  height: "auto",
-                  display: "block",
+                  maxWidth: 900,
+                  borderRadius: 4,
+                  background: "linear-gradient(145deg, #F7F7F9 0%, #FFFFFF 60%)",
+                  boxShadow: "0 35px 50px -30px rgba(51, 51, 51, 0.35)",
+                  border: `1px solid ${palette.lightBorder}`,
+                  overflow: "hidden",
                 }}
-              />
-            </Box>
+              >
+                <Box
+                  component="img"
+                  src="/dashboard-preview.png"
+                  alt="TempleCals Dashboard Preview"
+                  sx={{
+                    width: "100%",
+                    height: "auto",
+                    display: "block",
+                  }}
+                />
+              </Box>
+            </motion.div>
           </Stack>
         </Container>
       </Box>
@@ -201,33 +227,40 @@ const Landing = () => {
         sx={{ bgcolor: palette.softGrey, py: { xs: 10, md: 12 } }}
       >
         <Container maxWidth="lg">
-          <Stack
-            spacing={1.5}
-            sx={{ textAlign: "center", mb: 6, alignItems: "center" }}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
           >
-            <Typography
-              component="h2"
-              sx={{
-                fontWeight: 600,
-                fontSize: { xs: "1.8rem", md: "2.2rem" },
-                lineHeight: 1.3,
-              }}
+            <Stack
+              spacing={1.5}
+              sx={{ textAlign: "center", mb: 6, alignItems: "center" }}
             >
-              Everything you need in one place
-            </Typography>
-            <Typography
-              component="p"
-              sx={{
-                color: "text.secondary",
-                lineHeight: 1.7,
-                maxWidth: 720,
-              }}
-            >
-              TempleCals brings together campus dining menus, nutrition facts,
-              and goal tracking so you can focus on learning, training, and
-              living well.
-            </Typography>
-          </Stack>
+              <Typography
+                component="h2"
+                sx={{
+                  fontWeight: 600,
+                  fontSize: { xs: "1.8rem", md: "2.2rem" },
+                  lineHeight: 1.3,
+                }}
+              >
+                Everything you need in one place
+              </Typography>
+              <Typography
+                component="p"
+                sx={{
+                  color: "text.secondary",
+                  lineHeight: 1.7,
+                  maxWidth: 720,
+                }}
+              >
+                TempleCals brings together campus dining menus, nutrition facts,
+                and goal tracking so you can focus on learning, training, and
+                living well.
+              </Typography>
+            </Stack>
+          </motion.div>
           <Box
             sx={{
               display: 'grid',
@@ -235,10 +268,16 @@ const Landing = () => {
               gap: 3,
             }}
           >
-            {features.map((feature) => {
+            {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <Box key={feature.title}>
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.5, delay: index * 0.1, ease: "easeOut" }}
+                >
                   <Card
                     elevation={0}
                     sx={{
@@ -283,7 +322,7 @@ const Landing = () => {
                       </Typography>
                     </CardContent>
                   </Card>
-                </Box>
+                </motion.div>
               );
             })}
           </Box>
@@ -300,45 +339,58 @@ const Landing = () => {
               alignItems: 'center',
             }}
           >
-            <Box>
-              <Stack spacing={2}>
-                <Typography
-                  variant="overline"
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <Box>
+                <Stack spacing={2}>
+                  <Typography
+                    variant="overline"
+                    sx={{
+                      letterSpacing: 2,
+                      fontWeight: 600,
+                      color: palette.cherry,
+                    }}
+                  >
+                    VISUALIZE PROGRESS
+                  </Typography>
+                  <Typography variant="h3" sx={{ fontWeight: 700 }}>
+                    Understand every day at a glance
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    sx={{ color: "text.secondary", lineHeight: 1.7 }}
+                  >
+                    Detailed charts break down calories, protein, carbs, fat, and
+                    sodium pulled directly from meal entries. Monitor streaks,
+                    spot trends, and adjust plans before the day ends.
+                  </Typography>
+                </Stack>
+              </Box>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <Box>
+                <Box
                   sx={{
-                    letterSpacing: 2,
-                    fontWeight: 600,
-                    color: palette.cherry,
+                    borderRadius: 4,
+                    p: { xs: 3, md: 4 },
+                    background:
+                      "linear-gradient(160deg, #FFFFFF 0%, #F7F7F9 100%)",
+                    border: `1px solid ${palette.lightBorder}`,
+                    boxShadow: "0 30px 55px -40px rgba(51, 51, 51, 0.45)",
+                    width: "100%",
+                    maxWidth: 560,
+                    mx: "auto",
                   }}
                 >
-                  VISUALIZE PROGRESS
-                </Typography>
-                <Typography variant="h3" sx={{ fontWeight: 700 }}>
-                  Understand every day at a glance
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{ color: "text.secondary", lineHeight: 1.7 }}
-                >
-                  Detailed charts break down calories, protein, carbs, fat, and
-                  sodium pulled directly from meal entries. Monitor streaks,
-                  spot trends, and adjust plans before the day ends.
-                </Typography>
-              </Stack>
-            </Box>
-            <Box>
-              <Box
-                sx={{
-                  borderRadius: 4,
-                  p: { xs: 3, md: 4 },
-                  background:
-                    "linear-gradient(160deg, #FFFFFF 0%, #F7F7F9 100%)",
-                  border: `1px solid ${palette.lightBorder}`,
-                  boxShadow: "0 30px 55px -40px rgba(51, 51, 51, 0.45)",
-                  width: "100%",
-                  maxWidth: 560,
-                  mx: "auto",
-                }}
-              >
                 <Stack spacing={3} alignItems="center">
                   <Typography
                     variant="subtitle2"
@@ -416,6 +468,7 @@ const Landing = () => {
                 </Stack>
               </Box>
             </Box>
+            </motion.div>
           </Box>
         </Container>
       </Box>
@@ -425,23 +478,30 @@ const Landing = () => {
         sx={{ bgcolor: palette.softGrey, py: { xs: 10, md: 12 } }}
       >
         <Container maxWidth="lg">
-          <Stack spacing={2} sx={{ textAlign: "center", mb: 6, alignItems: "center" }}>
-            <Typography variant="h3" sx={{ fontWeight: 700 }}>
-              Built with real Temple feedback
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{ 
-                color: "text.secondary", 
-                maxWidth: 640,
-                textAlign: "center",
-                lineHeight: 1.7
-              }}
-            >
-              These reflections come straight from TempleCals progress reviews
-              and planning sessions with the project team.
-            </Typography>
-          </Stack>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <Stack spacing={2} sx={{ textAlign: "center", mb: 6, alignItems: "center" }}>
+              <Typography variant="h3" sx={{ fontWeight: 700 }}>
+                Built with real Temple feedback
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{ 
+                  color: "text.secondary", 
+                  maxWidth: 640,
+                  textAlign: "center",
+                  lineHeight: 1.7
+                }}
+              >
+                These reflections come straight from TempleCals progress reviews
+                and planning sessions with the project team.
+              </Typography>
+            </Stack>
+          </motion.div>
           <Box sx={{ maxWidth: 900, mx: "auto" }}>
             <Box
               sx={{
@@ -450,8 +510,14 @@ const Landing = () => {
                 gap: 3,
               }}
             >
-              {testimonials.map((testimonial) => (
-                <Box key={testimonial.quote}>
+              {testimonials.map((testimonial, index) => (
+                <motion.div
+                  key={testimonial.quote}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.5, delay: index * 0.15, ease: "easeOut" }}
+                >
                   <Card
                     elevation={0}
                     sx={{
@@ -485,7 +551,7 @@ const Landing = () => {
                       </Typography>
                     </Stack>
                   </Card>
-                </Box>
+                </motion.div>
               ))}
             </Box>
           </Box>
@@ -494,46 +560,53 @@ const Landing = () => {
 
       <Box component="section" sx={{ py: { xs: 10, md: 12 } }}>
         <Container maxWidth="md">
-          <Stack spacing={3} alignItems="center" textAlign="center">
-            <Typography variant="h3" sx={{ fontWeight: 700 }}>
-              Start building healthier habits today
-            </Typography>
-            <Typography
-              variant="body1"
-              sx={{ color: "text.secondary", maxWidth: 540 }}
-            >
-              Create your TempleCals account to log meals, set goals, and see
-              every macro in one dashboard built for Temple University life.
-            </Typography>
-            <Stack spacing={2} direction={{ xs: "column", sm: "row" }}>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => navigate("/register")}
-                sx={{
-                  bgcolor: palette.cherry,
-                  color: "#ffffff",
-                  fontWeight: 700,
-                  px: 5,
-                  py: 1.6,
-                  borderRadius: 999,
-                  "&:hover": {
-                    bgcolor: palette.cherryDark,
-                  },
-                }}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <Stack spacing={3} alignItems="center" textAlign="center">
+              <Typography variant="h3" sx={{ fontWeight: 700 }}>
+                Start building healthier habits today
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{ color: "text.secondary", maxWidth: 540 }}
               >
-                Sign Up Now
-              </Button>
-              <Button
-                variant="text"
-                size="large"
-                onClick={() => navigate("/login")}
-                sx={{ color: palette.cherry, fontWeight: 600 }}
-              >
-                Already have an account? Log in
-              </Button>
+                Create your TempleCals account to log meals, set goals, and see
+                every macro in one dashboard built for Temple University life.
+              </Typography>
+              <Stack spacing={2} direction={{ xs: "column", sm: "row" }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => navigate("/register")}
+                  sx={{
+                    bgcolor: palette.cherry,
+                    color: "#ffffff",
+                    fontWeight: 700,
+                    px: 5,
+                    py: 1.6,
+                    borderRadius: 999,
+                    "&:hover": {
+                      bgcolor: palette.cherryDark,
+                    },
+                  }}
+                >
+                  Sign Up Now
+                </Button>
+                <Button
+                  variant="text"
+                  size="large"
+                  onClick={() => navigate("/login")}
+                  sx={{ color: palette.cherry, fontWeight: 600 }}
+                >
+                  Already have an account? Log in
+                </Button>
+              </Stack>
             </Stack>
-          </Stack>
+          </motion.div>
         </Container>
       </Box>
 

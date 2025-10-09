@@ -14,6 +14,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -56,20 +57,25 @@ const Login = () => {
           py: 4,
         }}
       >
-        <Card sx={{ width: '100%', maxWidth: 400 }}>
-          <CardContent sx={{ p: 4 }}>
-            <Stack spacing={3}>
-              <Box textAlign="center">
-                <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  🍒 TempleCals
-                </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
-                  Welcome Back
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Sign in to your account to continue tracking your nutrition
-                </Typography>
-              </Box>
+        <motion.div
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          <Card sx={{ width: '100%', maxWidth: 400 }}>
+            <CardContent sx={{ p: 4 }}>
+              <Stack spacing={3}>
+                <Box textAlign="center">
+                  <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
+                    🍒 TempleCals
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
+                    Welcome Back
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Sign in to your account to continue tracking your nutrition
+                  </Typography>
+                </Box>
 
               {error && (
                 <Alert severity="error" sx={{ borderRadius: 2 }}>
@@ -140,6 +146,7 @@ const Login = () => {
             </Stack>
           </CardContent>
         </Card>
+        </motion.div>
       </Box>
     </Container>
   );
