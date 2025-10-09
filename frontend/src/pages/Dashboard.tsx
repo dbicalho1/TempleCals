@@ -4,6 +4,7 @@ import {
   LinearProgress, Stack, useTheme, Chip
 } from '@mui/material';
 import { Bar } from 'react-chartjs-2';
+import { motion } from 'framer-motion';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -164,19 +165,31 @@ const Dashboard = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
-          Today's Nutrition Summary
-        </Typography>
-        <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2 }}>
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-        </Typography>
-      </Box>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+      >
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+            Today's Nutrition Summary
+          </Typography>
+          <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2 }}>
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </Typography>
+        </Box>
+      </motion.div>
       
       <Grid container spacing={3}>
         {/* Daily Calories Card */}
         <Grid item xs={12} md={6} lg={3} sx={{ display: 'flex' }}>
-          <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+            style={{ width: '100%' }}
+          >
+            <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
             <Box 
               sx={{
                 position: 'absolute',
@@ -223,11 +236,18 @@ const Dashboard = () => {
               )}
             </CardContent>
           </Card>
+          </motion.div>
         </Grid>
         
         {/* Protein Card */}
         <Grid item xs={12} md={6} lg={3} sx={{ display: 'flex' }}>
-          <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
+            style={{ width: '100%' }}
+          >
+            <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
             <Box 
               sx={{
                 position: 'absolute',
@@ -274,11 +294,18 @@ const Dashboard = () => {
               )}
             </CardContent>
           </Card>
+          </motion.div>
         </Grid>
         
         {/* Carbs Card */}
         <Grid item xs={12} md={6} lg={3} sx={{ display: 'flex' }}>
-          <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3, ease: "easeOut" }}
+            style={{ width: '100%' }}
+          >
+            <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
             <Box 
               sx={{
                 position: 'absolute',
@@ -325,11 +352,18 @@ const Dashboard = () => {
               )}
             </CardContent>
           </Card>
+          </motion.div>
         </Grid>
         
         {/* Fat Card */}
         <Grid item xs={12} md={6} lg={3} sx={{ display: 'flex' }}>
-          <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.4, ease: "easeOut" }}
+            style={{ width: '100%' }}
+          >
+            <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
             <Box 
               sx={{
                 position: 'absolute',
@@ -376,22 +410,36 @@ const Dashboard = () => {
               )}
             </CardContent>
           </Card>
+          </motion.div>
         </Grid>
         
         {/* Chart */}
         <Grid item xs={12} md={8} sx={{ display: 'flex' }}>
-          <Card sx={{ height: '100%', minHeight: 400 }}>
-            <CardContent sx={{ p: 3, height: '100%' }}>
-              <Box sx={{ height: 'calc(100% - 40px)', pt: 1 }}>
-                <Bar options={chartOptions} data={chartData} />
-              </Box>
-            </CardContent>
-          </Card>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.5, ease: "easeOut" }}
+            style={{ width: '100%' }}
+          >
+            <Card sx={{ height: '100%', minHeight: 400 }}>
+              <CardContent sx={{ p: 3, height: '100%' }}>
+                <Box sx={{ height: 'calc(100% - 40px)', pt: 1 }}>
+                  <Bar options={chartOptions} data={chartData} />
+                </Box>
+              </CardContent>
+            </Card>
+          </motion.div>
         </Grid>
         
         {/* Today's Meals */}
         <Grid item xs={12} md={4} sx={{ display: 'flex' }}>
-          <Card sx={{ height: '100%', minHeight: 400 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.6, ease: "easeOut" }}
+            style={{ width: '100%' }}
+          >
+            <Card sx={{ height: '100%', minHeight: 400 }}>
             <CardContent sx={{ p: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <RestaurantIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
@@ -505,6 +553,7 @@ const Dashboard = () => {
               </Box>
             </CardContent>
           </Card>
+          </motion.div>
         </Grid>
       </Grid>
     </Container>

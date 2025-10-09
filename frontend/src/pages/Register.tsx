@@ -14,6 +14,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -81,20 +82,25 @@ const Register = () => {
           py: 4,
         }}
       >
-        <Card sx={{ width: '100%', maxWidth: 600 }}>
-          <CardContent sx={{ p: 4 }}>
-            <Stack spacing={3}>
-              <Box textAlign="center">
-                <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  🍒 TempleCals
-                </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
-                  Create Your Account
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Join TempleCals to start tracking your nutrition goals
-                </Typography>
-              </Box>
+        <motion.div
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          <Card sx={{ width: '100%', maxWidth: 600 }}>
+            <CardContent sx={{ p: 4 }}>
+              <Stack spacing={3}>
+                <Box textAlign="center">
+                  <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
+                    🍒 TempleCals
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
+                    Create Your Account
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Join TempleCals to start tracking your nutrition goals
+                  </Typography>
+                </Box>
 
               {error && (
                 <Alert severity="error" sx={{ borderRadius: 2 }}>
@@ -251,6 +257,7 @@ const Register = () => {
             </Stack>
           </CardContent>
         </Card>
+        </motion.div>
       </Box>
     </Container>
   );
