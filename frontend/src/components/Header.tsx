@@ -75,7 +75,7 @@ const Header = () => {
 
   const drawer = (
     <Box sx={{ textAlign: 'center' }}>
-      <Typography variant="h6" sx={{ my: 2, fontWeight: 'bold', color: theme.palette.primary.main }}>
+      <Typography variant="h6" sx={{ my: 2, fontWeight: 'bold', color: mode === 'dark' ? 'white' : theme.palette.primary.main }}>
         🍒 TempleCals
       </Typography>
       <List>
@@ -164,12 +164,12 @@ const Header = () => {
             sx={{ 
               flexGrow: 1, 
               fontWeight: 'bold', 
-              color: theme.palette.primary.main,
+              color: mode === 'dark' ? 'white' : theme.palette.primary.main,
               textDecoration: 'none',
               display: 'flex',
               alignItems: 'center',
               '&:hover': {
-                color: 'primary.dark',
+                color: mode === 'dark' ? 'grey.300' : 'primary.dark',
               }
             }}
           >

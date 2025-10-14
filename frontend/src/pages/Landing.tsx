@@ -33,9 +33,6 @@ type Testimonial = {
 const palette = {
   cherry: "#9E1B32",
   cherryDark: "#7E1426",
-  charcoal: "#333333",
-  softGrey: "#F4F4F6",
-  lightBorder: "#E5E7EB",
 };
 
 const features: Feature[] = [
@@ -91,7 +88,7 @@ const Landing = () => {
   const navigate = useNavigate();
 
   return (
-    <Box sx={{ bgcolor: "#ffffff", color: palette.charcoal }}>
+    <Box sx={{ bgcolor: "background.default", color: "text.primary" }}>
       <Box
         component="section"
         sx={{
@@ -199,9 +196,8 @@ const Landing = () => {
                   width: "100%",
                   maxWidth: 900,
                   borderRadius: 4,
-                  background: "linear-gradient(145deg, #F7F7F9 0%, #FFFFFF 60%)",
-                  boxShadow: "0 35px 50px -30px rgba(51, 51, 51, 0.35)",
-                  border: `1px solid ${palette.lightBorder}`,
+                  bgcolor: "background.paper",
+                  boxShadow: "0 35px 50px -30px rgba(0, 0, 0, 0.35)",
                   overflow: "hidden",
                 }}
               >
@@ -224,7 +220,7 @@ const Landing = () => {
       <Box
         component="section"
         id="features"
-        sx={{ bgcolor: palette.softGrey, py: { xs: 10, md: 12 } }}
+        sx={{ bgcolor: "background.paper", py: { xs: 10, md: 12 } }}
       >
         <Container maxWidth="lg">
           <motion.div
@@ -283,10 +279,7 @@ const Landing = () => {
                     sx={{
                       height: "100%",
                       borderRadius: 3,
-                      border: `1px solid ${palette.lightBorder}`,
-                      backgroundColor: "#ffffff",
                       p: 1,
-                      boxShadow: "0 20px 40px -35px rgba(51, 51, 51, 0.4)",
                       transition: "transform 0.3s ease, box-shadow 0.3s ease",
                       "&:hover": {
                         transform: "translateY(-6px)",
@@ -382,10 +375,8 @@ const Landing = () => {
                   sx={{
                     borderRadius: 4,
                     p: { xs: 3, md: 4 },
-                    background:
-                      "linear-gradient(160deg, #FFFFFF 0%, #F7F7F9 100%)",
-                    border: `1px solid ${palette.lightBorder}`,
-                    boxShadow: "0 30px 55px -40px rgba(51, 51, 51, 0.45)",
+                    bgcolor: "background.paper",
+                    boxShadow: "0 30px 55px -40px rgba(0, 0, 0, 0.45)",
                     width: "100%",
                     maxWidth: 560,
                     mx: "auto",
@@ -420,8 +411,7 @@ const Landing = () => {
                         key={metric.label}
                         sx={{
                           borderRadius: 3,
-                          backgroundColor: "#ffffff",
-                          border: `1px solid ${palette.lightBorder}`,
+                          bgcolor: "background.default",
                           p: 2,
                           textAlign: "center",
                         }}
@@ -445,8 +435,7 @@ const Landing = () => {
                     sx={{
                       mt: 1,
                       borderRadius: 3,
-                      border: `1px solid ${palette.lightBorder}`,
-                      backgroundColor: "#ffffff",
+                      bgcolor: "background.default",
                       p: 3,
                       width: "100%",
                     }}
@@ -475,7 +464,7 @@ const Landing = () => {
 
       <Box
         component="section"
-        sx={{ bgcolor: palette.softGrey, py: { xs: 10, md: 12 } }}
+        sx={{ bgcolor: "background.paper", py: { xs: 10, md: 12 } }}
       >
         <Container maxWidth="lg">
           <motion.div
@@ -523,9 +512,7 @@ const Landing = () => {
                     sx={{
                       height: "100%",
                       borderRadius: 3,
-                      border: `1px solid ${palette.lightBorder}`,
-                      backgroundColor: "#ffffff",
-                      boxShadow: "0 25px 45px -35px rgba(51, 51, 51, 0.4)",
+                      bgcolor: "background.default",
                       p: { xs: 3, md: 4 },
                       display: "flex",
                       flexDirection: "column",
@@ -535,7 +522,7 @@ const Landing = () => {
                     <Typography variant="body1" sx={{ lineHeight: 1.8 }}>
                       "{testimonial.quote}"
                     </Typography>
-                    <Divider sx={{ borderColor: palette.lightBorder }} />
+                    <Divider />
                     <Stack spacing={0.5}>
                       <Typography
                         variant="subtitle1"
@@ -612,7 +599,7 @@ const Landing = () => {
 
       <Box
         component="footer"
-        sx={{ bgcolor: "#0f0f10", color: "#f5f5f5", py: 6 }}
+        sx={{ bgcolor: "background.paper", color: "text.primary", py: 6, borderTop: 1, borderColor: "divider" }}
       >
         <Container maxWidth="lg">
           <Stack spacing={4} alignItems="center" textAlign="center">
@@ -632,10 +619,9 @@ const Landing = () => {
                   href={link.href}
                   underline="none"
                   sx={{
-                    color: "#f5f5f5",
-                    opacity: 0.75,
+                    color: "text.secondary",
                     fontSize: 14,
-                    "&:hover": { opacity: 1 },
+                    "&:hover": { color: "text.primary" },
                   }}
                 >
                   {link.label}
