@@ -5,6 +5,12 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
+  age?: number;
+  weight?: number;
+  height?: number;
+  gender?: string;
+  activity_level?: string;
+  goal?: string;
   daily_calorie_goal: number;
   daily_protein_goal: number;
   daily_carb_goal: number;
@@ -19,6 +25,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
+  updateUser: (updatedUser: User) => void;
   loading: boolean;
   isAuthenticated: boolean;
 }
@@ -129,12 +136,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('templecals_token');
   };
 
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+  };
+
   const value = {
     user,
     token,
     login,
     register,
     logout,
+    updateUser,
     loading,
     isAuthenticated: !!user,
   };

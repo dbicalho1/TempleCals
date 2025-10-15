@@ -26,6 +26,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PersonIcon from '@mui/icons-material/Person';
 import { useThemeMode } from './ThemeProvider';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -46,6 +47,7 @@ const Header = () => {
         { text: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
         { text: 'Log Meal', path: '/log-meal', icon: <RestaurantIcon /> },
         { text: 'Search Foods', path: '/search', icon: <SearchIcon /> },
+        { text: 'Profile', path: '/profile', icon: <PersonIcon /> },
       ]
     : [
         { text: 'Home', path: '/', icon: <HomeIcon /> },
@@ -53,12 +55,6 @@ const Header = () => {
 
   const authItems = isAuthenticated
     ? [
-        { 
-          text: `${user?.first_name || 'User'}`, 
-          action: 'profile', 
-          icon: <DashboardIcon />,
-          path: '/dashboard'
-        },
         { text: 'Logout', action: 'logout', icon: <LogoutIcon /> },
       ]
     : [

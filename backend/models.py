@@ -112,7 +112,15 @@ class User(db.Model):
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
     
-    # User preferences
+    # Profile information
+    age = db.Column(db.Integer)
+    weight = db.Column(db.Float)  # in lbs
+    height = db.Column(db.Float)  # in inches
+    gender = db.Column(db.String(20))  # male, female, other
+    activity_level = db.Column(db.String(20))  # sedentary, light, moderate, active, very_active
+    goal = db.Column(db.String(20))  # cutting, bulking, maintaining, tracking
+    
+    # User preferences (can be auto-calculated or manually set)
     daily_calorie_goal = db.Column(db.Integer, default=2000)
     daily_protein_goal = db.Column(db.Float, default=150.0)  # grams
     daily_carb_goal = db.Column(db.Float, default=250.0)     # grams
@@ -133,6 +141,92 @@ class User(db.Model):
         """Check if provided password matches stored hash"""
         return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
     
+    def calculate_bmr(self):
+        """
+        Calculate Basal Metabolic Rate using Mifflin-St Jeor Equation
+        Returns calories needed at rest
+        """
+        if not all([self.weight, self.height, self.age, self.gender]):
+            return None
+        
+        # Convert lbs to kg and inches to cm
+        weight_kg = self.weight * 0.453592
+        height_cm = self.height * 2.54
+        
+        # Mifflin-St Jeor: (10 × weight in kg) + (6.25 × height in cm) - (5 × age in years)
+        bmr = (10 * weight_kg) + (6.25 * height_cm) - (5 * self.age)
+        
+        # Add gender factor
+        if self.gender == 'male':
+            bmr += 5
+        elif self.gender == 'female':
+            bmr -= 161
+        else:
+            bmr -= 78  # Average of male and female
+            
+        return round(bmr)
+    
+    def calculate_tdee(self):
+        """
+        Calculate Total Daily Energy Expenditure
+        BMR multiplied by activity level
+        """
+        bmr = self.calculate_bmr()
+        if not bmr or not self.activity_level:
+            return None
+        
+        activity_multipliers = {
+            'sedentary': 1.2,      # Little or no exercise
+            'light': 1.375,        # Light exercise 1-3 days/week
+            'moderate': 1.55,      # Moderate exercise 3-5 days/week
+            'active': 1.725,       # Heavy exercise 6-7 days/week
+            'very_active': 1.9     # Very heavy exercise, physical job
+        }
+        
+        multiplier = activity_multipliers.get(self.activity_level, 1.2)
+        return round(bmr * multiplier)
+    
+    def calculate_recommended_macros(self):
+        """
+        Calculate recommended macro goals based on TDEE and fitness goal
+        Returns dict with calories, protein, carbs, fat
+        """
+        tdee = self.calculate_tdee()
+        if not tdee or not self.goal or not self.weight:
+            return None
+        
+        # Adjust calories based on goal
+        if self.goal == 'cutting':
+            calories = round(tdee * 0.8)  # 20% deficit
+            protein_per_lb = 1.2  # Higher protein to preserve muscle
+        elif self.goal == 'bulking':
+            calories = round(tdee * 1.1)  # 10% surplus
+            protein_per_lb = 1.0
+        elif self.goal == 'maintaining':
+            calories = tdee
+            protein_per_lb = 1.0
+        else:  # tracking
+            calories = tdee
+            protein_per_lb = 0.8
+        
+        # Calculate protein (in grams)
+        protein = round(self.weight * protein_per_lb)
+        
+        # Calculate fat (25-30% of calories)
+        fat_calories = calories * 0.275
+        fat = round(fat_calories / 9)  # 9 calories per gram of fat
+        
+        # Remaining calories go to carbs
+        remaining_calories = calories - (protein * 4) - (fat * 9)
+        carbs = round(remaining_calories / 4)  # 4 calories per gram of carbs
+        
+        return {
+            'calories': calories,
+            'protein': protein,
+            'carbs': carbs,
+            'fat': fat
+        }
+    
     def to_dict(self):
         """Convert user to dictionary for API responses (excluding password)"""
         return {
@@ -140,6 +234,12 @@ class User(db.Model):
             'email': self.email,
             'first_name': self.first_name,
             'last_name': self.last_name,
+            'age': self.age,
+            'weight': self.weight,
+            'height': self.height,
+            'gender': self.gender,
+            'activity_level': self.activity_level,
+            'goal': self.goal,
             'daily_calorie_goal': self.daily_calorie_goal,
             'daily_protein_goal': self.daily_protein_goal,
             'daily_carb_goal': self.daily_carb_goal,

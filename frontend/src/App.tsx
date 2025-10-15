@@ -10,6 +10,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import LogMeal from './pages/LogMeal';
 import Search from './pages/Search';
+import Profile from './pages/Profile';
 import './App.css';
 
 function App() {
@@ -45,6 +46,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Search />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
                     </ProtectedRoute>
                   } 
                 />

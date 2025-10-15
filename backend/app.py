@@ -135,6 +135,67 @@ def get_current_user():
     except Exception as e:
         return jsonify({'error': 'Failed to get user', 'details': str(e)}), 500
 
+@app.route('/api/auth/profile', methods=['PUT'])
+@jwt_required()
+def update_profile():
+    """Update user profile and nutrition goals"""
+    try:
+        current_user_email = get_jwt_identity()
+        user = User.query.filter_by(email=current_user_email).first()
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        data = request.get_json()
+        
+        # Update profile information
+        if 'age' in data:
+            user.age = data['age']
+        if 'weight' in data:
+            user.weight = data['weight']
+        if 'height' in data:
+            user.height = data['height']
+        if 'gender' in data:
+            user.gender = data['gender']
+        if 'activity_level' in data:
+            user.activity_level = data['activity_level']
+        if 'goal' in data:
+            user.goal = data['goal']
+        
+        # If auto_calculate is true, calculate recommended macros
+        if data.get('auto_calculate', False):
+            recommended = user.calculate_recommended_macros()
+            if recommended:
+                user.daily_calorie_goal = recommended['calories']
+                user.daily_protein_goal = recommended['protein']
+                user.daily_carb_goal = recommended['carbs']
+                user.daily_fat_goal = recommended['fat']
+        else:
+            # Allow manual override of nutrition goals
+            if 'daily_calorie_goal' in data:
+                user.daily_calorie_goal = data['daily_calorie_goal']
+            if 'daily_protein_goal' in data:
+                user.daily_protein_goal = data['daily_protein_goal']
+            if 'daily_carb_goal' in data:
+                user.daily_carb_goal = data['daily_carb_goal']
+            if 'daily_fat_goal' in data:
+                user.daily_fat_goal = data['daily_fat_goal']
+        
+        db.session.commit()
+        
+        # Calculate recommended macros to include in response
+        recommended_macros = user.calculate_recommended_macros()
+        
+        return jsonify({
+            'message': 'Profile updated successfully',
+            'user': user.to_dict(),
+            'recommended_macros': recommended_macros
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to update profile', 'details': str(e)}), 500
+
 # API Endpoints for Dining Halls
 @app.route('/api/dining-halls', methods=['GET'])
 def get_dining_halls():
