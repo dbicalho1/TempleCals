@@ -16,6 +16,11 @@ import {
 } from 'chart.js';
 import { getMealEntriesByDate, getDailyTotals, MealEntry } from '../services/mockData';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
+import PersonIcon from '@mui/icons-material/Person';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import { useAuth } from '../contexts/AuthContext';
+import { Link as RouterLink } from 'react-router-dom';
+import Button from '@mui/material/Button';
 
 // Register ChartJS components
 ChartJS.register(
@@ -32,6 +37,7 @@ const Grid = MuiGrid as any;
 
 const Dashboard = () => {
   const theme = useTheme();
+  const { user } = useAuth();
   const [meals, setMeals] = useState<MealEntry[]>([]);
   const [groupedMeals, setGroupedMeals] = useState<Array<MealEntry & { count: number }>>([]);
   const [dailyTotals, setDailyTotals] = useState({
@@ -42,11 +48,13 @@ const Dashboard = () => {
   });
   
   const goals = {
-    calories: 2000,
-    protein: 50,
-    carbs: 275,
-    fat: 65
+    calories: user?.daily_calorie_goal || 2000,
+    protein: user?.daily_protein_goal || 150,
+    carbs: user?.daily_carb_goal || 250,
+    fat: user?.daily_fat_goal || 65
   };
+  
+  const hasProfileSetup = user?.age && user?.weight && user?.height && user?.goal;
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -163,6 +171,16 @@ const Dashboard = () => {
   const isCarbsExceeded = dailyTotals.totalCarbs > goals.carbs;
   const isFatExceeded = dailyTotals.totalFat > goals.fat;
 
+  const getGoalLabel = (goal?: string) => {
+    const goalLabels: Record<string, string> = {
+      cutting: 'Cutting',
+      bulking: 'Bulking',
+      maintaining: 'Maintaining',
+      tracking: 'Tracking'
+    };
+    return goal ? goalLabels[goal] : null;
+  };
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <motion.div
@@ -171,12 +189,51 @@ const Dashboard = () => {
         transition={{ duration: 0.4, ease: "easeOut" }}
       >
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
-            Today's Nutrition Summary
-          </Typography>
-          <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 2 }}>
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+            <Box>
+              <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+                Welcome back, {user?.first_name}!
+              </Typography>
+              <Typography variant="subtitle1" color="text.secondary">
+                {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </Typography>
+            </Box>
+            {user?.goal && (
+              <Chip
+                icon={<FitnessCenterIcon />}
+                label={getGoalLabel(user.goal)}
+                color="primary"
+                sx={{ fontWeight: 600 }}
+              />
+            )}
+          </Box>
+          
+          {!hasProfileSetup && (
+            <Card sx={{ bgcolor: 'primary.light', border: '1px solid', borderColor: 'primary.main', mb: 3 }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <PersonIcon sx={{ fontSize: 40, color: 'primary.main' }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main', mb: 0.5 }}>
+                      Complete Your Profile
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Set up your profile to get personalized nutrition goals based on your fitness goals.
+                    </Typography>
+                  </Box>
+                  <Button
+                    component={RouterLink}
+                    to="/profile"
+                    variant="contained"
+                    startIcon={<PersonIcon />}
+                    sx={{ whiteSpace: 'nowrap' }}
+                  >
+                    Set Up Profile
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          )}
         </Box>
       </motion.div>
       

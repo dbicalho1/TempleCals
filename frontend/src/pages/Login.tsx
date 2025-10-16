@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -18,13 +18,20 @@ import { motion } from 'framer-motion';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,7 +57,7 @@ const Login = () => {
     <Container maxWidth="sm">
       <Box
         sx={{
-          minHeight: '100vh',
+          minHeight: 'calc(100vh - 70px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -61,9 +68,17 @@ const Login = () => {
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
+          style={{ width: '100%' }}
         >
-          <Card sx={{ width: '100%', maxWidth: 400 }}>
-            <CardContent sx={{ p: 4 }}>
+          <Card 
+            sx={{ 
+              width: '100%', 
+              maxWidth: 450,
+              mx: 'auto',
+              boxShadow: 3,
+            }}
+          >
+            <CardContent sx={{ p: { xs: 3, sm: 5 } }}>
               <Stack spacing={3}>
                 <Box textAlign="center">
                   <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>

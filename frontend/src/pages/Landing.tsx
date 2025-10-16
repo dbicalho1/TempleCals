@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import type { ElementType } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import {
   Box,
   Button,
@@ -86,6 +88,14 @@ const footerLinks = [
 
 const Landing = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <Box sx={{ bgcolor: "background.default", color: "text.primary" }}>
