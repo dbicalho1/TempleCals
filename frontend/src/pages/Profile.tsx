@@ -11,8 +11,6 @@ import {
   Alert,
   CircularProgress,
   MenuItem,
-  Grid,
-  Divider,
   Switch,
   FormControlLabel,
   Paper,
@@ -182,8 +180,8 @@ const Profile = () => {
                   </Typography>
                 </Box>
 
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                  <Box sx={{ flex: '1 1 200px', minWidth: '150px' }}>
                     <TextField
                       name="age"
                       type="number"
@@ -194,9 +192,9 @@ const Profile = () => {
                       disabled={loading}
                       inputProps={{ min: 13, max: 120 }}
                     />
-                  </Grid>
+                  </Box>
 
-                  <Grid item xs={12} sm={6}>
+                  <Box sx={{ flex: '1 1 200px', minWidth: '150px' }}>
                     <TextField
                       name="gender"
                       select
@@ -212,9 +210,9 @@ const Profile = () => {
                         </MenuItem>
                       ))}
                     </TextField>
-                  </Grid>
+                  </Box>
 
-                  <Grid item xs={12} sm={6}>
+                  <Box sx={{ flex: '1 1 200px', minWidth: '150px' }}>
                     <TextField
                       name="weight"
                       type="number"
@@ -225,9 +223,9 @@ const Profile = () => {
                       disabled={loading}
                       inputProps={{ min: 50, max: 500, step: 0.1 }}
                     />
-                  </Grid>
+                  </Box>
 
-                  <Grid item xs={12} sm={6}>
+                  <Box sx={{ flex: '1 1 200px', minWidth: '150px' }}>
                     <TextField
                       name="height"
                       type="number"
@@ -239,8 +237,8 @@ const Profile = () => {
                       inputProps={{ min: 36, max: 96, step: 0.1 }}
                       helperText="Example: 5'10&quot; = 70 inches"
                     />
-                  </Grid>
-                </Grid>
+                  </Box>
+                </Box>
               </CardContent>
             </Card>
 
@@ -254,8 +252,8 @@ const Profile = () => {
                   </Typography>
                 </Box>
 
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                  <Box sx={{ flex: '1 1 250px' }}>
                     <TextField
                       name="activity_level"
                       select
@@ -271,9 +269,9 @@ const Profile = () => {
                         </MenuItem>
                       ))}
                     </TextField>
-                  </Grid>
+                  </Box>
 
-                  <Grid item xs={12} sm={6}>
+                  <Box sx={{ flex: '1 1 250px' }}>
                     <TextField
                       name="goal"
                       select
@@ -289,8 +287,8 @@ const Profile = () => {
                         </MenuItem>
                       ))}
                     </TextField>
-                  </Grid>
-                </Grid>
+                  </Box>
+                </Box>
               </CardContent>
             </Card>
 
@@ -318,8 +316,8 @@ const Profile = () => {
                     Your nutrition goals will be automatically calculated based on your profile information.
                   </Alert>
                 ) : (
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                    <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: '200px' }}>
                       <TextField
                         name="daily_calorie_goal"
                         type="number"
@@ -330,9 +328,9 @@ const Profile = () => {
                         disabled={loading}
                         inputProps={{ min: 800, max: 6000 }}
                       />
-                    </Grid>
+                    </Box>
 
-                    <Grid item xs={12} sm={6}>
+                    <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: '200px' }}>
                       <TextField
                         name="daily_protein_goal"
                         type="number"
@@ -343,9 +341,9 @@ const Profile = () => {
                         disabled={loading}
                         inputProps={{ min: 0, max: 500, step: 0.1 }}
                       />
-                    </Grid>
+                    </Box>
 
-                    <Grid item xs={12} sm={6}>
+                    <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: '200px' }}>
                       <TextField
                         name="daily_carb_goal"
                         type="number"
@@ -356,9 +354,9 @@ const Profile = () => {
                         disabled={loading}
                         inputProps={{ min: 0, max: 1000, step: 0.1 }}
                       />
-                    </Grid>
+                    </Box>
 
-                    <Grid item xs={12} sm={6}>
+                    <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: '200px' }}>
                       <TextField
                         name="daily_fat_goal"
                         type="number"
@@ -369,8 +367,8 @@ const Profile = () => {
                         disabled={loading}
                         inputProps={{ min: 0, max: 300, step: 0.1 }}
                       />
-                    </Grid>
-                  </Grid>
+                    </Box>
+                  </Box>
                 )}
               </CardContent>
             </Card>
@@ -381,40 +379,40 @@ const Profile = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: 'primary.main' }}>
                   Recommended Daily Goals
                 </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={6} sm={3}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                  <Box sx={{ flex: '1 1 calc(25% - 12px)', minWidth: '120px', textAlign: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
                       Calories
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                       {recommended.calories}
                     </Typography>
-                  </Grid>
-                  <Grid item xs={6} sm={3}>
+                  </Box>
+                  <Box sx={{ flex: '1 1 calc(25% - 12px)', minWidth: '120px', textAlign: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
                       Protein
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                       {recommended.protein}g
                     </Typography>
-                  </Grid>
-                  <Grid item xs={6} sm={3}>
+                  </Box>
+                  <Box sx={{ flex: '1 1 calc(25% - 12px)', minWidth: '120px', textAlign: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
                       Carbs
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                       {recommended.carbs}g
                     </Typography>
-                  </Grid>
-                  <Grid item xs={6} sm={3}>
+                  </Box>
+                  <Box sx={{ flex: '1 1 calc(25% - 12px)', minWidth: '120px', textAlign: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
                       Fat
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                       {recommended.fat}g
                     </Typography>
-                  </Grid>
-                </Grid>
+                  </Box>
+                </Box>
               </Paper>
             )}
 
