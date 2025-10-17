@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   Container, Typography, Paper, Box, Grid as MuiGrid, Divider, Card, CardContent,
-  LinearProgress, Stack, useTheme, Chip
+  LinearProgress, Stack, useTheme, Chip, Tabs, Tab
 } from '@mui/material';
 import { Bar } from 'react-chartjs-2';
 import { motion } from 'framer-motion';
@@ -38,6 +38,7 @@ const Grid = MuiGrid as any;
 const Dashboard = () => {
   const theme = useTheme();
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState(0);
   const [meals, setMeals] = useState<MealEntry[]>([]);
   const [groupedMeals, setGroupedMeals] = useState<Array<MealEntry & { count: number }>>([]);
   const [dailyTotals, setDailyTotals] = useState({
@@ -237,7 +238,38 @@ const Dashboard = () => {
         </Box>
       </motion.div>
       
-      <Grid container spacing={3}>
+      {/* Tabbed Navigation */}
+      <Paper sx={{ mb: 3 }}>
+        <Tabs 
+          value={activeTab} 
+          onChange={(_, newValue) => setActiveTab(newValue)}
+          variant="fullWidth"
+          sx={{
+            borderBottom: 1,
+            borderColor: 'divider',
+            '& .MuiTab-root': {
+              textTransform: 'none',
+              fontSize: '1rem',
+              fontWeight: 600,
+              py: 2
+            }
+          }}
+        >
+          <Tab label="Overview" />
+          <Tab label="Today's Meals" />
+          <Tab label="Analytics" />
+        </Tabs>
+      </Paper>
+      
+      {/* Tab Content: Overview */}
+      {activeTab === 0 && (
+        <motion.div
+          key="overview"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Grid container spacing={3}>
         {/* Daily Calories Card */}
         <Grid item xs={12} md={6} lg={3} sx={{ display: 'flex' }}>
           <motion.div
@@ -613,6 +645,154 @@ const Dashboard = () => {
           </motion.div>
         </Grid>
       </Grid>
+        </motion.div>
+      )}
+
+      {/* Tab Content: Today's Meals */}
+      {activeTab === 1 && (
+        <motion.div
+          key="meals"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card>
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <RestaurantIcon sx={{ mr: 1, color: theme.palette.primary.main, fontSize: 28 }} />
+                  <Typography variant="h5" fontWeight="bold">
+                    Today's Meals
+                  </Typography>
+                </Box>
+                <Chip 
+                  label={`${groupedMeals.reduce((sum, meal) => sum + meal.count, 0)} items logged`}
+                  color="primary"
+                  variant="outlined"
+                />
+              </Box>
+              
+              {groupedMeals.length > 0 ? (
+                <Stack spacing={2}>
+                  {groupedMeals.map((meal) => (
+                    <Card 
+                      key={meal.id} 
+                      variant="outlined"
+                      sx={{ 
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          boxShadow: 2,
+                          transform: 'translateY(-2px)'
+                        }
+                      }}
+                    >
+                      <CardContent sx={{ p: 3 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                          <Box sx={{ flex: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                              <Typography variant="h6" fontWeight="medium">
+                                {meal.description}
+                              </Typography>
+                              {meal.count > 1 && (
+                                <Chip 
+                                  label={`×${meal.count}`} 
+                                  size="small" 
+                                  color="primary"
+                                />
+                              )}
+                            </Box>
+                            <Typography variant="body2" color="text.secondary">
+                              {meal.foodItems.map(item => item.name).join(', ')}
+                            </Typography>
+                          </Box>
+                          <Chip
+                            label={`${meal.totalCalories} cal`}
+                            color="primary"
+                            sx={{ fontWeight: 'bold', fontSize: '0.9rem' }}
+                          />
+                        </Box>
+                        
+                        <Divider sx={{ my: 2 }} />
+                        
+                        <Grid container spacing={2}>
+                          <Grid item xs={4}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                              Protein
+                            </Typography>
+                            <Typography variant="h6" color="info.main" fontWeight="bold">
+                              {meal.totalProtein}g
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                              Carbs
+                            </Typography>
+                            <Typography variant="h6" color="warning.main" fontWeight="bold">
+                              {meal.totalCarbs}g
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                              Fat
+                            </Typography>
+                            <Typography variant="h6" color="error.main" fontWeight="bold">
+                              {meal.totalFat}g
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </Stack>
+              ) : (
+                <Box sx={{ py: 8, textAlign: 'center' }}>
+                  <RestaurantIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+                  <Typography variant="h6" color="text.secondary" gutterBottom>
+                    No meals logged today
+                  </Typography>
+                  <Typography variant="body2" color="text.disabled" sx={{ mb: 3 }}>
+                    Head to "Log Meal" to start tracking your nutrition!
+                  </Typography>
+                  <Button
+                    component={RouterLink}
+                    to="/log-meal"
+                    variant="contained"
+                    startIcon={<RestaurantIcon />}
+                  >
+                    Log Your First Meal
+                  </Button>
+                </Box>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* Tab Content: Analytics */}
+      {activeTab === 2 && (
+        <motion.div
+          key="analytics"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card>
+            <CardContent sx={{ p: 3 }}>
+              <Typography variant="h5" fontWeight="bold" gutterBottom>
+                Progress & Analytics
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                View your macronutrient breakdown and progress
+              </Typography>
+              
+              <Box sx={{ height: 400 }}>
+                <Bar options={chartOptions} data={chartData} />
+              </Box>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
     </Container>
   );
 };
