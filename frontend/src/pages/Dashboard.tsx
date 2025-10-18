@@ -18,14 +18,9 @@ import { getMealEntriesByDate, getDailyTotals, MealEntry } from '../services/moc
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import PersonIcon from '@mui/icons-material/Person';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { useAuth } from '../contexts/AuthContext';
 import { Link as RouterLink } from 'react-router-dom';
 import Button from '@mui/material/Button';
-import CircularProgress from '../components/CircularProgress';
-import { getCaloriesRemaining, calculateStreak } from '../utils/dashboardHelpers';
 
 // Register ChartJS components
 ChartJS.register(
