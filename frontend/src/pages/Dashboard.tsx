@@ -3,21 +3,37 @@ import {
   Container, Typography, Paper, Box, Grid as MuiGrid, Divider, Card, CardContent,
   LinearProgress, Stack, useTheme, Chip, Tabs, Tab
 } from '@mui/material';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Line } from 'react-chartjs-2';
 import { motion } from 'framer-motion';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from 'chart.js';
 import { getMealEntriesByDate, getDailyTotals, MealEntry } from '../services/mockData';
+import { 
+  mockNutritionHistory, 
+  mockWeightHistory, 
+  mockStreakData,
+  getWeightTrend,
+  DailyNutrition 
+} from '../services/mockAnalytics';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import PersonIcon from '@mui/icons-material/Person';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import ScaleIcon from '@mui/icons-material/Scale';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { useAuth } from '../contexts/AuthContext';
 import { Link as RouterLink } from 'react-router-dom';
 import Button from '@mui/material/Button';
@@ -27,9 +43,12 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
+  LineElement,
+  PointElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 // Fix for Grid component TypeScript issues
@@ -47,6 +66,11 @@ const Dashboard = () => {
     totalCarbs: 0,
     totalFat: 0
   });
+  
+  // Analytics state
+  const [timePeriod, setTimePeriod] = useState<'7days' | '30days'>('7days');
+  const [nutritionHistory, setNutritionHistory] = useState<DailyNutrition[]>([]);
+  const [weightTrend, setWeightTrend] = useState(getWeightTrend(mockWeightHistory));
   
   const goals = {
     calories: user?.daily_calorie_goal || 2000,
@@ -80,6 +104,13 @@ const Dashboard = () => {
     setGroupedMeals(groupIdenticalMeals(todaysMeals));
     setDailyTotals(getDailyTotals(today));
   }, [today]);
+
+  // Load analytics data based on time period
+  useEffect(() => {
+    const days = timePeriod === '7days' ? 7 : 30;
+    const filtered = mockNutritionHistory.slice(-days);
+    setNutritionHistory(filtered);
+  }, [timePeriod]);
 
   const chartData = {
     labels: ['Protein', 'Carbs', 'Fat'],
@@ -157,6 +188,82 @@ const Dashboard = () => {
         }
       }
     }
+  };
+
+  // Calorie Trend Chart
+  const calorieTrendData = {
+    labels: nutritionHistory.map(day => {
+      const date = new Date(day.date);
+      return `${date.getMonth() + 1}/${date.getDate()}`;
+    }),
+    datasets: [
+      {
+        label: 'Calories',
+        data: nutritionHistory.map(day => day.calories),
+        borderColor: theme.palette.primary.main,
+        backgroundColor: `${theme.palette.primary.main}20`,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      },
+      {
+        label: 'Goal',
+        data: nutritionHistory.map(() => goals.calories),
+        borderColor: theme.palette.success.main,
+        borderDash: [5, 5],
+        fill: false,
+        pointRadius: 0,
+      },
+    ],
+  };
+
+  // Weight Trend Chart
+  const weightTrendData = {
+    labels: mockWeightHistory.map(entry => {
+      const date = new Date(entry.date);
+      return `${date.getMonth() + 1}/${date.getDate()}`;
+    }),
+    datasets: [
+      {
+        label: 'Weight (lbs)',
+        data: mockWeightHistory.map(entry => entry.weight),
+        borderColor: theme.palette.info.main,
+        backgroundColor: `${theme.palette.info.main}20`,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      },
+    ],
+  };
+
+  const trendChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top' as const,
+      },
+      tooltip: {
+        mode: 'index' as const,
+        intersect: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+        grid: {
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
+      },
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+    },
   };
 
   const calculateProgress = (current: number, goal: number) => 
@@ -776,20 +883,207 @@ const Dashboard = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Card>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h5" fontWeight="bold" gutterBottom>
-                Progress & Analytics
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                View your macronutrient breakdown and progress
-              </Typography>
-              
-              <Box sx={{ height: 400 }}>
-                <Bar options={chartOptions} data={chartData} />
-              </Box>
-            </CardContent>
-          </Card>
+          {/* Stats Cards Row */}
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+            {/* Streak Card */}
+            <Grid item xs={12} md={4}>
+              <Card sx={{ height: '100%', background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)` }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <LocalFireDepartmentIcon sx={{ fontSize: 40, color: 'white', mr: 1 }} />
+                    <Typography variant="h6" fontWeight="bold" color="white">
+                      Current Streak
+                    </Typography>
+                  </Box>
+                  <Typography variant="h2" fontWeight="bold" color="white" sx={{ mb: 1 }}>
+                    {mockStreakData.currentStreak}
+                  </Typography>
+                  <Typography variant="body2" color="rgba(255,255,255,0.9)">
+                    days hitting calorie goal
+                  </Typography>
+                  <Divider sx={{ my: 2, bgcolor: 'rgba(255,255,255,0.3)' }} />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Box>
+                      <Typography variant="caption" color="rgba(255,255,255,0.7)">
+                        Longest
+                      </Typography>
+                      <Typography variant="h6" fontWeight="bold" color="white">
+                        {mockStreakData.longestStreak} days
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="caption" color="rgba(255,255,255,0.7)">
+                        Total Logged
+                      </Typography>
+                      <Typography variant="h6" fontWeight="bold" color="white">
+                        {mockStreakData.totalDaysLogged} days
+                      </Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Weight Trend Card */}
+            <Grid item xs={12} md={4}>
+              <Card sx={{ height: '100%' }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <ScaleIcon sx={{ fontSize: 32, color: theme.palette.info.main, mr: 1 }} />
+                    <Typography variant="h6" fontWeight="bold">
+                      Weight Trend
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
+                    <Typography variant="h2" fontWeight="bold" color="text.primary">
+                      {mockWeightHistory[mockWeightHistory.length - 1].weight}
+                    </Typography>
+                    <Typography variant="h6" color="text.secondary" sx={{ ml: 1 }}>
+                      lbs
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    {weightTrend.direction === 'down' ? (
+                      <TrendingDownIcon sx={{ color: theme.palette.success.main, mr: 0.5 }} />
+                    ) : weightTrend.direction === 'up' ? (
+                      <TrendingUpIcon sx={{ color: theme.palette.error.main, mr: 0.5 }} />
+                    ) : null}
+                    <Typography 
+                      variant="body2" 
+                      color={weightTrend.direction === 'down' ? 'success.main' : weightTrend.direction === 'up' ? 'error.main' : 'text.secondary'}
+                    >
+                      {weightTrend.change > 0 ? '+' : ''}{weightTrend.change} lbs ({weightTrend.percentage > 0 ? '+' : ''}{weightTrend.percentage}%)
+                    </Typography>
+                  </Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Since {new Date(mockWeightHistory[0].date).toLocaleDateString()}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Goal Achievement Card */}
+            <Grid item xs={12} md={4}>
+              <Card sx={{ height: '100%' }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <EmojiEventsIcon sx={{ fontSize: 32, color: theme.palette.warning.main, mr: 1 }} />
+                    <Typography variant="h6" fontWeight="bold">
+                      Goal Achievement
+                    </Typography>
+                  </Box>
+                  <Typography variant="h2" fontWeight="bold" color="warning.main" sx={{ mb: 1 }}>
+                    {Math.round((mockStreakData.currentStreak / mockStreakData.totalDaysLogged) * 100)}%
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    of days on track
+                  </Typography>
+                  <LinearProgress 
+                    variant="determinate" 
+                    value={(mockStreakData.currentStreak / mockStreakData.totalDaysLogged) * 100}
+                    sx={{ 
+                      height: 8, 
+                      borderRadius: 4,
+                      mb: 2,
+                      backgroundColor: 'rgba(255, 160, 0, 0.1)',
+                      '& .MuiLinearProgress-bar': {
+                        backgroundColor: theme.palette.warning.main,
+                      }
+                    }}
+                  />
+                  <Typography variant="caption" color="text.secondary">
+                    Last logged: {new Date(mockStreakData.lastLoggedDate).toLocaleDateString()}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+
+          {/* Time Period Selector */}
+          <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h5" fontWeight="bold">
+              Nutrition Trends
+            </Typography>
+            <Stack direction="row" spacing={1}>
+              <Chip
+                label="7 Days"
+                color={timePeriod === '7days' ? 'primary' : 'default'}
+                onClick={() => setTimePeriod('7days')}
+                sx={{ fontWeight: timePeriod === '7days' ? 'bold' : 'normal' }}
+              />
+              <Chip
+                label="30 Days"
+                color={timePeriod === '30days' ? 'primary' : 'default'}
+                onClick={() => setTimePeriod('30days')}
+                sx={{ fontWeight: timePeriod === '30days' ? 'bold' : 'normal' }}
+              />
+            </Stack>
+          </Box>
+
+          {/* Charts Grid */}
+          <Grid container spacing={3}>
+            {/* Calorie Trend Chart */}
+            <Grid item xs={12} lg={8}>
+              <Card>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h6" fontWeight="bold" gutterBottom>
+                    Daily Calorie Intake
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    Track your calories over time vs your goal
+                  </Typography>
+                  <Box sx={{ height: 350 }}>
+                    <Line data={calorieTrendData} options={trendChartOptions} />
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Today's Macro Breakdown */}
+            <Grid item xs={12} lg={4}>
+              <Card sx={{ height: '100%' }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h6" fontWeight="bold" gutterBottom>
+                    Today's Macros
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    Current breakdown
+                  </Typography>
+                  <Box sx={{ height: 300 }}>
+                    <Bar options={chartOptions} data={chartData} />
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Weight Tracking Chart */}
+            <Grid item xs={12}>
+              <Card>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Box>
+                      <Typography variant="h6" fontWeight="bold" gutterBottom>
+                        Weight Progress
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Your weight journey over time
+                      </Typography>
+                    </Box>
+                    <Button
+                      variant="outlined"
+                      startIcon={<ScaleIcon />}
+                      size="small"
+                    >
+                      Log Weight
+                    </Button>
+                  </Box>
+                  <Box sx={{ height: 300 }}>
+                    <Line data={weightTrendData} options={trendChartOptions} />
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
         </motion.div>
       )}
 
