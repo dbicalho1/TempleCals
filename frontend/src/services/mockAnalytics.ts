@@ -154,6 +154,6 @@ export const getWeightTrend = (history: WeightEntry[]): {
   };
 };
 
-// Export default mock data
-export const mockNutritionHistory = generateMockNutritionHistory(30);
+// Export default mock data (start with 5 days to show the "keep logging" message)
+export const mockNutritionHistory = generateMockNutritionHistory(5);
 export const mockStreakData = calculateStreak(mockNutritionHistory);

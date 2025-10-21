@@ -884,9 +884,9 @@ const Dashboard = () => {
           transition={{ duration: 0.3 }}
         >
           {/* Stats Cards Row */}
-          <Grid container spacing={3} sx={{ mb: 3 }}>
+          <Grid container spacing={3} sx={{ mb: 3, justifyContent: 'center' }}>
             {/* Streak Card */}
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <Card sx={{ height: '100%', background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)` }}>
                 <CardContent sx={{ p: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -925,7 +925,7 @@ const Dashboard = () => {
             </Grid>
 
             {/* Weight Trend Card */}
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <Card sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -963,7 +963,7 @@ const Dashboard = () => {
             </Grid>
 
             {/* Goal Achievement Card */}
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <Card sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -998,6 +998,25 @@ const Dashboard = () => {
               </Card>
             </Grid>
           </Grid>
+
+          {/* Helpful Message for New Users */}
+          {nutritionHistory.length < 7 && (
+            <Card sx={{ mb: 3, bgcolor: 'info.lighter', border: '1px solid', borderColor: 'info.light' }}>
+              <CardContent sx={{ py: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <CalendarTodayIcon sx={{ fontSize: 32, color: 'info.main' }} />
+                  <Box>
+                    <Typography variant="body1" fontWeight="medium" color="text.primary">
+                      Keep logging to see your trends!
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Log meals consistently for at least 7 days to see meaningful patterns and track your progress over time.
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Time Period Selector */}
           <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1060,22 +1079,22 @@ const Dashboard = () => {
             <Grid item xs={12}>
               <Card>
                 <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Box>
-                      <Typography variant="h6" fontWeight="bold" gutterBottom>
-                        Weight Progress
-                      </Typography>
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="h6" fontWeight="bold" gutterBottom>
+                      Weight Progress
+                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Typography variant="body2" color="text.secondary">
                         Your weight journey over time
                       </Typography>
+                      <Button
+                        variant="outlined"
+                        startIcon={<ScaleIcon />}
+                        size="small"
+                      >
+                        Log Weight
+                      </Button>
                     </Box>
-                    <Button
-                      variant="outlined"
-                      startIcon={<ScaleIcon />}
-                      size="small"
-                    >
-                      Log Weight
-                    </Button>
                   </Box>
                   <Box sx={{ height: 300 }}>
                     <Line data={weightTrendData} options={trendChartOptions} />
