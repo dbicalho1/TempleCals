@@ -2,43 +2,68 @@ import { useState, useEffect } from 'react';
 import { 
   Container, Typography, TextField, Paper, Box, 
   Table, TableBody, TableCell, TableContainer, 
-  TableHead, TableRow, InputAdornment, Chip
+  TableHead, TableRow, InputAdornment, Chip, CircularProgress
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { searchFoodItems, FoodItem } from '../services/mockData';
+import { getMeals, getDiningHalls, Meal } from '../services/api';
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<FoodItem[]>([]);
-  const [sources, setSources] = useState<string[]>([]);
-  const [selectedSource, setSelectedSource] = useState<string | null>(null);
+  const [searchResults, setSearchResults] = useState<Meal[]>([]);
+  const [allMeals, setAllMeals] = useState<Meal[]>([]);
+  const [diningHalls, setDiningHalls] = useState<any[]>([]);
+  const [selectedDiningHall, setSelectedDiningHall] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const items = searchFoodItems('');
-    setSources(Array.from(new Set(items.map(item => item.source))));
-    setSearchResults(items);
+    const loadData = async () => {
+      try {
+        const [mealsData, hallsData] = await Promise.all([
+          getMeals(),
+          getDiningHalls()
+        ]);
+        setAllMeals(mealsData);
+        setSearchResults(mealsData);
+        setDiningHalls(hallsData);
+      } catch (err) {
+        console.error('Error loading data:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
   }, []);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    let results = searchFoodItems(query);
-    if (selectedSource) {
-      results = results.filter(item => item.source === selectedSource);
-    }
-    setSearchResults(results);
+    filterMeals(query, selectedDiningHall);
   };
 
-  const handleSourceFilter = (source: string) => {
-    if (selectedSource === source) {
-      setSelectedSource(null);
-      setSearchResults(searchFoodItems(searchQuery));
+  const handleDiningHallFilter = (hall: string) => {
+    if (selectedDiningHall === hall) {
+      setSelectedDiningHall(null);
+      filterMeals(searchQuery, null);
     } else {
-      setSelectedSource(source);
-      const results = searchFoodItems(searchQuery).filter(
-        item => item.source === source
-      );
-      setSearchResults(results);
+      setSelectedDiningHall(hall);
+      filterMeals(searchQuery, hall);
     }
+  };
+
+  const filterMeals = (query: string, hall: string | null) => {
+    let results = allMeals;
+    
+    if (query) {
+      results = results.filter(meal => 
+        meal.name.toLowerCase().includes(query.toLowerCase()) ||
+        meal.description?.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+    
+    if (hall) {
+      results = results.filter(meal => meal.dining_hall === hall);
+    }
+    
+    setSearchResults(results);
   };
 
   return (
@@ -66,15 +91,15 @@ const Search = () => {
         
         <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
           <Typography variant="body2" sx={{ mr: 1, alignSelf: 'center' }}>
-            Filter by source:
+            Filter by dining hall:
           </Typography>
-          {sources.map((source) => (
+          {diningHalls.map((hall) => (
             <Chip
-              key={source}
-              label={source}
-              onClick={() => handleSourceFilter(source)}
-              color={selectedSource === source ? "primary" : "default"}
-              variant={selectedSource === source ? "filled" : "outlined"}
+              key={hall.id}
+              label={hall.name}
+              onClick={() => handleDiningHallFilter(hall.name)}
+              color={selectedDiningHall === hall.name ? "primary" : "default"}
+              variant={selectedDiningHall === hall.name ? "filled" : "outlined"}
             />
           ))}
         </Box>
@@ -90,10 +115,10 @@ const Search = () => {
                 <Typography variant="subtitle2" sx={{ color: theme => theme.palette.mode === 'dark' ? '#ffffff' : 'inherit' }}>Food Item</Typography>
               </TableCell>
               <TableCell>
-                <Typography variant="subtitle2" sx={{ color: theme => theme.palette.mode === 'dark' ? '#ffffff' : 'inherit' }}>Source</Typography>
+                <Typography variant="subtitle2" sx={{ color: theme => theme.palette.mode === 'dark' ? '#ffffff' : 'inherit' }}>Dining Hall</Typography>
               </TableCell>
               <TableCell>
-                <Typography variant="subtitle2" sx={{ color: theme => theme.palette.mode === 'dark' ? '#ffffff' : 'inherit' }}>Serving Size</Typography>
+                <Typography variant="subtitle2" sx={{ color: theme => theme.palette.mode === 'dark' ? '#ffffff' : 'inherit' }}>Category</Typography>
               </TableCell>
               <TableCell>
                 <Typography variant="subtitle2" sx={{ color: theme => theme.palette.mode === 'dark' ? '#ffffff' : 'inherit' }}>Calories</Typography>
@@ -110,16 +135,22 @@ const Search = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {searchResults.length > 0 ? (
-              searchResults.map((item) => (
-                <TableRow key={item.id} hover>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.source}</TableCell>
-                  <TableCell>{item.servingSize}</TableCell>
-                  <TableCell>{item.calories}</TableCell>
-                  <TableCell>{item.protein}</TableCell>
-                  <TableCell>{item.carbs}</TableCell>
-                  <TableCell>{item.fat}</TableCell>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={7} align="center">
+                  <CircularProgress sx={{ my: 4 }} />
+                </TableCell>
+              </TableRow>
+            ) : searchResults.length > 0 ? (
+              searchResults.map((meal) => (
+                <TableRow key={meal.id} hover>
+                  <TableCell>{meal.name}</TableCell>
+                  <TableCell>{meal.dining_hall}</TableCell>
+                  <TableCell>{meal.category}</TableCell>
+                  <TableCell>{meal.calories}</TableCell>
+                  <TableCell>{meal.protein}</TableCell>
+                  <TableCell>{meal.carbs}</TableCell>
+                  <TableCell>{meal.fat}</TableCell>
                 </TableRow>
               ))
             ) : (

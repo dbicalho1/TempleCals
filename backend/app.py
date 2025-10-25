@@ -31,7 +31,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 # Import models after db initialization to avoid circular imports
-from models import DiningHall, MealCategory, Meal, User
+from models import DiningHall, MealCategory, Meal, User, UserMeal
 
 @app.route('/')
 def index():
@@ -265,6 +265,217 @@ def get_meal(meal_id):
     """Get a specific meal"""
     meal = Meal.query.get_or_404(meal_id)
     return jsonify(meal.to_dict())
+
+# User Meal Logging Endpoints
+@app.route('/api/user-meals/log', methods=['POST'])
+@jwt_required()
+def log_meal():
+    """Log a meal for the current user"""
+    try:
+        current_user_email = get_jwt_identity()
+        user = User.query.filter_by(email=current_user_email).first()
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        data = request.get_json()
+        
+        # Validate required fields
+        if not data.get('meal_id'):
+            return jsonify({'error': 'meal_id is required'}), 400
+        
+        # Check if meal exists
+        meal = Meal.query.get(data['meal_id'])
+        if not meal:
+            return jsonify({'error': 'Meal not found'}), 404
+        
+        # Create user meal entry
+        user_meal = UserMeal(
+            user_id=user.id,
+            meal_id=data['meal_id'],
+            serving_multiplier=data.get('serving_multiplier', 1.0),
+            notes=data.get('notes', None)
+        )
+        
+        # If consumed_at is provided, use it; otherwise use current time
+        if 'consumed_at' in data:
+            user_meal.consumed_at = datetime.fromisoformat(data['consumed_at'])
+            user_meal.date_consumed = user_meal.consumed_at.date()
+        
+        db.session.add(user_meal)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Meal logged successfully',
+            'user_meal': user_meal.to_dict()
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to log meal', 'details': str(e)}), 500
+
+@app.route('/api/user-meals/history', methods=['GET'])
+@jwt_required()
+def get_meal_history():
+    """Get meal history for the current user with optional date filtering"""
+    try:
+        current_user_email = get_jwt_identity()
+        user = User.query.filter_by(email=current_user_email).first()
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Get query parameters
+        date_str = request.args.get('date')
+        limit = request.args.get('limit', type=int, default=100)
+        
+        # Start with base query
+        query = UserMeal.query.filter_by(user_id=user.id)
+        
+        # Filter by date if provided
+        if date_str:
+            try:
+                target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                query = query.filter(UserMeal.date_consumed == target_date)
+            except ValueError:
+                return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+        
+        # Order by most recent first
+        query = query.order_by(UserMeal.consumed_at.desc())
+        
+        # Apply limit
+        user_meals = query.limit(limit).all()
+        
+        return jsonify({
+            'meals': [um.to_dict() for um in user_meals],
+            'count': len(user_meals)
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': 'Failed to get meal history', 'details': str(e)}), 500
+
+@app.route('/api/user-meals/daily/<date>', methods=['GET'])
+@jwt_required()
+def get_daily_meals(date):
+    """Get all meals for a specific date with daily totals"""
+    try:
+        current_user_email = get_jwt_identity()
+        user = User.query.filter_by(email=current_user_email).first()
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Parse date
+        try:
+            target_date = datetime.strptime(date, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+        
+        # Get all meals for that date
+        user_meals = UserMeal.query.filter_by(
+            user_id=user.id,
+            date_consumed=target_date
+        ).order_by(UserMeal.consumed_at.asc()).all()
+        
+        # Calculate daily totals
+        total_calories = sum(um.meal.calories * um.serving_multiplier if um.meal and um.meal.calories else 0 for um in user_meals)
+        total_protein = sum(um.meal.protein * um.serving_multiplier if um.meal and um.meal.protein else 0 for um in user_meals)
+        total_carbs = sum(um.meal.carbs * um.serving_multiplier if um.meal and um.meal.carbs else 0 for um in user_meals)
+        total_fat = sum(um.meal.fat * um.serving_multiplier if um.meal and um.meal.fat else 0 for um in user_meals)
+        
+        return jsonify({
+            'date': date,
+            'meals': [um.to_dict() for um in user_meals],
+            'count': len(user_meals),
+            'totals': {
+                'calories': int(total_calories),
+                'protein': round(total_protein, 1),
+                'carbs': round(total_carbs, 1),
+                'fat': round(total_fat, 1)
+            },
+            'goals': {
+                'calories': user.daily_calorie_goal,
+                'protein': user.daily_protein_goal,
+                'carbs': user.daily_carb_goal,
+                'fat': user.daily_fat_goal
+            }
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': 'Failed to get daily meals', 'details': str(e)}), 500
+
+@app.route('/api/user-meals/<int:user_meal_id>', methods=['DELETE'])
+@jwt_required()
+def delete_user_meal(user_meal_id):
+    """Delete a logged meal"""
+    try:
+        current_user_email = get_jwt_identity()
+        user = User.query.filter_by(email=current_user_email).first()
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Find the user meal
+        user_meal = UserMeal.query.get(user_meal_id)
+        
+        if not user_meal:
+            return jsonify({'error': 'Meal entry not found'}), 404
+        
+        # Verify it belongs to the current user
+        if user_meal.user_id != user.id:
+            return jsonify({'error': 'Unauthorized'}), 403
+        
+        db.session.delete(user_meal)
+        db.session.commit()
+        
+        return jsonify({'message': 'Meal deleted successfully'}), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete meal', 'details': str(e)}), 500
+
+@app.route('/api/user-meals/<int:user_meal_id>', methods=['PUT'])
+@jwt_required()
+def update_user_meal(user_meal_id):
+    """Update a logged meal"""
+    try:
+        current_user_email = get_jwt_identity()
+        user = User.query.filter_by(email=current_user_email).first()
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Find the user meal
+        user_meal = UserMeal.query.get(user_meal_id)
+        
+        if not user_meal:
+            return jsonify({'error': 'Meal entry not found'}), 404
+        
+        # Verify it belongs to the current user
+        if user_meal.user_id != user.id:
+            return jsonify({'error': 'Unauthorized'}), 403
+        
+        data = request.get_json()
+        
+        # Update fields if provided
+        if 'serving_multiplier' in data:
+            user_meal.serving_multiplier = data['serving_multiplier']
+        if 'notes' in data:
+            user_meal.notes = data['notes']
+        if 'consumed_at' in data:
+            user_meal.consumed_at = datetime.fromisoformat(data['consumed_at'])
+            user_meal.date_consumed = user_meal.consumed_at.date()
+        
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Meal updated successfully',
+            'user_meal': user_meal.to_dict()
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to update meal', 'details': str(e)}), 500
 
 # Health check endpoint
 @app.route('/api/health', methods=['GET'])

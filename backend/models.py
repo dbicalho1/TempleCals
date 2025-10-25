@@ -247,3 +247,55 @@ class User(db.Model):
             'created_at': self.created_at.isoformat(),
             'last_login': self.last_login.isoformat() if self.last_login else None
         }
+
+class UserMeal(db.Model):
+    """
+    Tracks meals logged by users
+    """
+    __tablename__ = 'user_meals'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    meal_id = db.Column(db.Integer, db.ForeignKey('meals.id'), nullable=False)
+    
+    # Allow tracking partial servings (e.g., 0.5 for half portion)
+    serving_multiplier = db.Column(db.Float, default=1.0)
+    
+    # Date and time the meal was consumed
+    consumed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    date_consumed = db.Column(db.Date, default=datetime.utcnow)  # For easy daily queries
+    
+    # Optional notes
+    notes = db.Column(db.Text)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref=db.backref('meals', lazy=True))
+    meal = db.relationship('Meal', backref=db.backref('user_logs', lazy=True))
+    
+    def __repr__(self):
+        return f'<UserMeal user_id={self.user_id} meal_id={self.meal_id} date={self.date_consumed}>'
+    
+    def to_dict(self):
+        """Convert user meal to dictionary for API responses"""
+        meal_data = self.meal.to_dict() if self.meal else {}
+        
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'meal_id': self.meal_id,
+            'serving_multiplier': self.serving_multiplier,
+            'consumed_at': self.consumed_at.isoformat(),
+            'date_consumed': self.date_consumed.isoformat(),
+            'notes': self.notes,
+            'created_at': self.created_at.isoformat(),
+            'meal': meal_data,
+            # Calculated nutrition based on serving multiplier
+            'total_calories': int(self.meal.calories * self.serving_multiplier) if self.meal and self.meal.calories else 0,
+            'total_protein': round(self.meal.protein * self.serving_multiplier, 1) if self.meal and self.meal.protein else 0,
+            'total_carbs': round(self.meal.carbs * self.serving_multiplier, 1) if self.meal and self.meal.carbs else 0,
+            'total_fat': round(self.meal.fat * self.serving_multiplier, 1) if self.meal and self.meal.fat else 0
+        }

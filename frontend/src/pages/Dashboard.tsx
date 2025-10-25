@@ -17,7 +17,7 @@ import {
   Legend,
   Filler,
 } from 'chart.js';
-import { getMealEntriesByDate, getDailyTotals, MealEntry } from '../services/mockData';
+import { getDailyMeals, UserMeal, DailyMealsResponse, deleteUserMeal } from '../services/api';
 import { 
   mockNutritionHistory, 
   mockWeightHistory, 
@@ -58,36 +58,40 @@ const Dashboard = () => {
   const theme = useTheme();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState(0);
-  const [meals, setMeals] = useState<MealEntry[]>([]);
-  const [groupedMeals, setGroupedMeals] = useState<Array<MealEntry & { count: number }>>([]);
-  const [dailyTotals, setDailyTotals] = useState({
-    totalCalories: 0,
-    totalProtein: 0,
-    totalCarbs: 0,
-    totalFat: 0
-  });
+  const [meals, setMeals] = useState<UserMeal[]>([]);
+  const [groupedMeals, setGroupedMeals] = useState<Array<UserMeal & { count: number }>>([]);
+  const [dailyData, setDailyData] = useState<DailyMealsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Analytics state
   const [timePeriod, setTimePeriod] = useState<'7days' | '30days'>('7days');
   const [nutritionHistory, setNutritionHistory] = useState<DailyNutrition[]>([]);
   const [weightTrend, setWeightTrend] = useState(getWeightTrend(mockWeightHistory));
   
-  const goals = {
+  const goals = dailyData?.goals || {
     calories: user?.daily_calorie_goal || 2000,
     protein: user?.daily_protein_goal || 150,
     carbs: user?.daily_carb_goal || 250,
     fat: user?.daily_fat_goal || 65
   };
   
+  const dailyTotals = dailyData?.totals || {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0
+  };
+  
   const hasProfileSetup = user?.age && user?.weight && user?.height && user?.goal;
 
   const today = new Date().toISOString().split('T')[0];
 
-  const groupIdenticalMeals = (mealEntries: MealEntry[]) => {
-    const mealGroups: Record<string, MealEntry & { count: number }> = {};
+  const groupIdenticalMeals = (mealEntries: UserMeal[]) => {
+    const mealGroups: Record<string, UserMeal & { count: number }> = {};
     
     mealEntries.forEach(meal => {
-      const mealKey = `${meal.description}-${meal.totalCalories}-${meal.totalProtein}-${meal.totalCarbs}-${meal.totalFat}`;
+      const mealKey = `${meal.meal.name}-${meal.total_calories}-${meal.total_protein}-${meal.total_carbs}-${meal.total_fat}`;
       
       if (mealGroups[mealKey]) {
         mealGroups[mealKey].count += 1;
@@ -97,12 +101,36 @@ const Dashboard = () => {
     });
     return Object.values(mealGroups);
   };
+  
+  const fetchDailyData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await getDailyMeals(today);
+      setDailyData(data);
+      setMeals(data.meals);
+      setGroupedMeals(groupIdenticalMeals(data.meals));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load meals');
+      console.error('Error fetching daily meals:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleDeleteMeal = async (mealId: number) => {
+    try {
+      await deleteUserMeal(mealId);
+      // Refresh data after deletion
+      await fetchDailyData();
+    } catch (err) {
+      console.error('Error deleting meal:', err);
+      alert('Failed to delete meal');
+    }
+  };
 
   useEffect(() => {
-    const todaysMeals = getMealEntriesByDate(today);
-    setMeals(todaysMeals);
-    setGroupedMeals(groupIdenticalMeals(todaysMeals));
-    setDailyTotals(getDailyTotals(today));
+    fetchDailyData();
   }, [today]);
 
   // Load analytics data based on time period
@@ -117,7 +145,7 @@ const Dashboard = () => {
     datasets: [
       {
         label: 'Grams',
-        data: [dailyTotals.totalProtein, dailyTotals.totalCarbs, dailyTotals.totalFat],
+        data: [dailyTotals.protein, dailyTotals.carbs, dailyTotals.fat],
         backgroundColor: [
           theme.palette.info.light,
           theme.palette.warning.light,
@@ -269,15 +297,15 @@ const Dashboard = () => {
   const calculateProgress = (current: number, goal: number) => 
     Math.min(Math.round((current / goal) * 100), 100);
 
-  const caloriesProgress = calculateProgress(dailyTotals.totalCalories, goals.calories);
-  const proteinProgress = calculateProgress(dailyTotals.totalProtein, goals.protein);
-  const carbsProgress = calculateProgress(dailyTotals.totalCarbs, goals.carbs);
-  const fatProgress = calculateProgress(dailyTotals.totalFat, goals.fat);
+  const caloriesProgress = calculateProgress(dailyTotals.calories, goals.calories);
+  const proteinProgress = calculateProgress(dailyTotals.protein, goals.protein);
+  const carbsProgress = calculateProgress(dailyTotals.carbs, goals.carbs);
+  const fatProgress = calculateProgress(dailyTotals.fat, goals.fat);
 
-  const isCaloriesExceeded = dailyTotals.totalCalories > goals.calories;
-  const isProteinExceeded = dailyTotals.totalProtein > goals.protein;
-  const isCarbsExceeded = dailyTotals.totalCarbs > goals.carbs;
-  const isFatExceeded = dailyTotals.totalFat > goals.fat;
+  const isCaloriesExceeded = dailyTotals.calories > goals.calories;
+  const isProteinExceeded = dailyTotals.protein > goals.protein;
+  const isCarbsExceeded = dailyTotals.carbs > goals.carbs;
+  const isFatExceeded = dailyTotals.fat > goals.fat;
 
   const getGoalLabel = (goal?: string) => {
     const goalLabels: Record<string, string> = {
@@ -402,7 +430,7 @@ const Dashboard = () => {
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
                 <Typography variant="h3" fontWeight="bold" color="primary.main">
-                  {dailyTotals.totalCalories}
+                  {dailyTotals.calories}
                 </Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ ml: 1 }}>
                   / {goals.calories}
@@ -460,7 +488,7 @@ const Dashboard = () => {
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
                 <Typography variant="h3" fontWeight="bold" color="info.main">
-                  {dailyTotals.totalProtein}
+                  {dailyTotals.protein}
                 </Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ ml: 1 }}>
                   g / {goals.protein}g
@@ -518,7 +546,7 @@ const Dashboard = () => {
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
                 <Typography variant="h3" fontWeight="bold" color="warning.main">
-                  {dailyTotals.totalCarbs}
+                  {dailyTotals.carbs}
                 </Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ ml: 1 }}>
                   g / {goals.carbs}g
@@ -576,7 +604,7 @@ const Dashboard = () => {
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
                 <Typography variant="h3" fontWeight="bold" color="error.main">
-                  {dailyTotals.totalFat}
+                  {dailyTotals.fat}
                 </Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ ml: 1 }}>
                   g / {goals.fat}g
@@ -684,7 +712,7 @@ const Dashboard = () => {
                               mr: meal.count > 1 ? 1 : 0
                             }}
                           >
-                            {meal.description}
+                            {meal.meal.name}
                           </Typography>
                           {meal.count > 1 && (
                             <Chip 
@@ -710,7 +738,7 @@ const Dashboard = () => {
                             flexShrink: 0
                           }}
                         >
-                          {meal.totalCalories} cal
+                          {meal.total_calories} cal
                         </Typography>
                       </Box>
                       
@@ -724,13 +752,13 @@ const Dashboard = () => {
                         }}
                       >
                         <Typography variant="body2" color="info.main">
-                          P: {meal.totalProtein}g
+                          P: {meal.total_protein}g
                         </Typography>
                         <Typography variant="body2" color="warning.main">
-                          C: {meal.totalCarbs}g
+                          C: {meal.total_carbs}g
                         </Typography>
                         <Typography variant="body2" color="error.main">
-                          F: {meal.totalFat}g
+                          F: {meal.total_fat}g
                         </Typography>
                       </Box>
                     </Box>
@@ -798,7 +826,7 @@ const Dashboard = () => {
                           <Box sx={{ flex: 1 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                               <Typography variant="h6" fontWeight="medium">
-                                {meal.description}
+                                {meal.meal.name}
                               </Typography>
                               {meal.count > 1 && (
                                 <Chip 
@@ -809,11 +837,11 @@ const Dashboard = () => {
                               )}
                             </Box>
                             <Typography variant="body2" color="text.secondary">
-                              {meal.foodItems.map(item => item.name).join(', ')}
+                              {meal.meal.dining_hall} • {meal.meal.category}
                             </Typography>
                           </Box>
                           <Chip
-                            label={`${meal.totalCalories} cal`}
+                            label={`${meal.total_calories} cal`}
                             color="primary"
                             sx={{ fontWeight: 'bold', fontSize: '0.9rem' }}
                           />
@@ -827,7 +855,7 @@ const Dashboard = () => {
                               Protein
                             </Typography>
                             <Typography variant="h6" color="info.main" fontWeight="bold">
-                              {meal.totalProtein}g
+                              {meal.total_protein}g
                             </Typography>
                           </Grid>
                           <Grid item xs={4}>
@@ -835,7 +863,7 @@ const Dashboard = () => {
                               Carbs
                             </Typography>
                             <Typography variant="h6" color="warning.main" fontWeight="bold">
-                              {meal.totalCarbs}g
+                              {meal.total_carbs}g
                             </Typography>
                           </Grid>
                           <Grid item xs={4}>
@@ -843,7 +871,7 @@ const Dashboard = () => {
                               Fat
                             </Typography>
                             <Typography variant="h6" color="error.main" fontWeight="bold">
-                              {meal.totalFat}g
+                              {meal.total_fat}g
                             </Typography>
                           </Grid>
                         </Grid>
