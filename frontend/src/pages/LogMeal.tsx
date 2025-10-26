@@ -130,69 +130,79 @@ const LogMeal = () => {
       {/* Search and Filters */}
       <Card sx={{ mb: 4 }}>
         <CardContent sx={{ p: 3 }}>
+          <Box sx={{ mb: 3 }}>
+            <TextField
+              fullWidth
+              label="Search meals"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              placeholder="e.g., chicken, pizza, salad"
+              InputProps={{
+                startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />
+              }}
+            />
+          </Box>
+          
           <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Search meals"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="e.g., chicken, pizza, salad"
-                InputProps={{
-                  startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth>
-                <InputLabel>Dining Hall</InputLabel>
+            <Grid item xs={6}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="dining-hall-label">Dining Hall</InputLabel>
                 <Select
+                  labelId="dining-hall-label"
                   value={selectedDiningHall}
                   label="Dining Hall"
                   onChange={(e) => setSelectedDiningHall(e.target.value as number)}
                 >
-                  <MenuItem value="">All Dining Halls</MenuItem>
+                  <MenuItem value="">All</MenuItem>
                   {diningHalls.map((hall) => (
                     <MenuItem key={hall.id} value={hall.id}>{hall.name}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth>
-                <InputLabel>Category</InputLabel>
+            <Grid item xs={6}>
+              <FormControl fullWidth size="small">
+                <InputLabel id="category-label">Category</InputLabel>
                 <Select
+                  labelId="category-label"
                   value={selectedCategory}
                   label="Category"
                   onChange={(e) => setSelectedCategory(e.target.value as number)}
                 >
-                  <MenuItem value="">All Categories</MenuItem>
+                  <MenuItem value="">All</MenuItem>
                   {categories.map((cat) => (
                     <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
-              <Button 
-                variant="contained" 
-                fullWidth 
-                onClick={handleSearch}
-                disabled={isLoading}
-                startIcon={isLoading ? <CircularProgress size={20} /> : <SearchIcon />}
-              >
-                {isLoading ? 'Searching...' : 'Search Meals'}
-              </Button>
-            </Grid>
           </Grid>
+          
+          <Button 
+            variant="contained" 
+            fullWidth 
+            onClick={handleSearch}
+            disabled={isLoading}
+            startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <SearchIcon />}
+            sx={{ mt: 2 }}
+          >
+            {isLoading ? 'Searching...' : 'Search Meals'}
+          </Button>
         </CardContent>
       </Card>
 
       {/* Meals List */}
-      <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
-        Available Meals ({meals.length})
-      </Typography>
+      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography variant="h5" fontWeight="bold">
+          Available Meals
+        </Typography>
+        <Chip 
+          label={`${meals.length} items`} 
+          color="primary" 
+          variant="outlined"
+        />
+      </Box>
 
       {meals.length === 0 ? (
         <Card>
@@ -214,9 +224,34 @@ const LogMeal = () => {
           </CardContent>
         </Card>
       ) : (
-        <Grid container spacing={2}>
-          {meals.map((meal) => (
-            <Grid item xs={12} sm={6} md={4} key={meal.id}>
+        <Box>
+          {/* Group meals by dining hall */}
+          {Array.from(new Set(meals.map(m => m.dining_hall))).map((diningHall) => {
+            const hallMeals = meals.filter(m => m.dining_hall === diningHall);
+            return (
+              <Box key={diningHall} sx={{ mb: 4 }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  mb: 2,
+                  pb: 1,
+                  borderBottom: 2,
+                  borderColor: 'primary.main'
+                }}>
+                  <StorefrontIcon sx={{ mr: 1, color: 'primary.main' }} />
+                  <Typography variant="h6" fontWeight="bold">
+                    {diningHall}
+                  </Typography>
+                  <Chip 
+                    label={`${hallMeals.length} meals`} 
+                    size="small" 
+                    sx={{ ml: 2 }}
+                  />
+                </Box>
+                
+                <Grid container spacing={2}>
+                  {hallMeals.map((meal) => (
+                    <Grid item xs={12} sm={6} md={4} key={meal.id}>
               <Card 
                 sx={{ 
                   height: '100%',
@@ -322,10 +357,14 @@ const LogMeal = () => {
                     Log This Meal
                   </Button>
                 </Box>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                    </Card>
+                  </Grid>
+                ))}
+                </Grid>
+              </Box>
+            );
+          })}
+        </Box>
       )}
     </Container>
   );
