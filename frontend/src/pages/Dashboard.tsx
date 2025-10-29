@@ -3,6 +3,7 @@ import {
   Container, Typography, Paper, Box, Grid as MuiGrid, Divider, Card, CardContent,
   LinearProgress, Stack, useTheme, Chip, Tabs, Tab
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { Bar, Line } from 'react-chartjs-2';
 import { motion } from 'framer-motion';
 import {
@@ -27,13 +28,15 @@ import {
 } from '../services/mockAnalytics';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import PersonIcon from '@mui/icons-material/Person';
-import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import ScaleIcon from '@mui/icons-material/Scale';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import GrainIcon from '@mui/icons-material/Grain';
+import OpacityIcon from '@mui/icons-material/Opacity';
 import { useAuth } from '../contexts/AuthContext';
 import { Link as RouterLink } from 'react-router-dom';
 import Button from '@mui/material/Button';
@@ -140,12 +143,17 @@ const Dashboard = () => {
     setNutritionHistory(filtered);
   }, [timePeriod]);
 
+  const totalMacros = dailyTotals.protein + dailyTotals.carbs + dailyTotals.fat;
+  const proteinPercent = totalMacros > 0 ? Math.round((dailyTotals.protein / totalMacros) * 100) : 0;
+  const carbsPercent = totalMacros > 0 ? Math.round((dailyTotals.carbs / totalMacros) * 100) : 0;
+  const fatPercent = totalMacros > 0 ? Math.round((dailyTotals.fat / totalMacros) * 100) : 0;
+
   const chartData = {
     labels: ['Protein', 'Carbs', 'Fat'],
     datasets: [
       {
-        label: 'Grams',
-        data: [dailyTotals.protein, dailyTotals.carbs, dailyTotals.fat],
+        label: 'Percentage',
+        data: [proteinPercent, carbsPercent, fatPercent],
         backgroundColor: [
           theme.palette.info.light,
           theme.palette.warning.light,
@@ -191,14 +199,24 @@ const Dashboard = () => {
         },
         bodyFont: {
           family: theme.typography.fontFamily,
+        },
+        callbacks: {
+          label: function(context: any) {
+            return context.dataset.label + ': ' + context.parsed.y + '%';
+          }
         }
       }
     },
     scales: {
       y: {
+        beginAtZero: true,
+        max: 100,
         ticks: {
           font: {
             family: theme.typography.fontFamily,
+          },
+          callback: function(value: any) {
+            return value + '%';
           }
         },
         grid: {
@@ -307,6 +325,73 @@ const Dashboard = () => {
   const isCarbsExceeded = dailyTotals.carbs > goals.carbs;
   const isFatExceeded = dailyTotals.fat > goals.fat;
 
+  const macroCards = [
+    {
+      key: 'calories',
+      title: 'Total Calories',
+      valueDisplay: `${dailyTotals.calories}`,
+      goalDisplay: `/ ${goals.calories}`,
+      progress: caloriesProgress,
+      progressLabel: 'of daily goal',
+      exceeded: isCaloriesExceeded,
+      exceededMessage: 'Warning! You are over the calorie limit',
+      barColor: theme.palette.primary.main,
+      progressBg: alpha(theme.palette.primary.main, 0.12),
+      iconBg: alpha(theme.palette.primary.main, 0.15),
+      iconColor: theme.palette.primary.main,
+      IconComponent: LocalFireDepartmentIcon,
+      delay: 0.1,
+    },
+    {
+      key: 'protein',
+      title: 'Protein',
+      valueDisplay: `${dailyTotals.protein} g`,
+      goalDisplay: `/ ${goals.protein} g`,
+      progress: proteinProgress,
+      progressLabel: 'of daily goal',
+      exceeded: isProteinExceeded,
+      exceededMessage: 'Warning! You are over the protein limit',
+      barColor: theme.palette.info.main,
+      progressBg: alpha(theme.palette.info.main, 0.12),
+      iconBg: alpha(theme.palette.info.main, 0.15),
+      iconColor: theme.palette.info.main,
+      IconComponent: FitnessCenterIcon,
+      delay: 0.2,
+    },
+    {
+      key: 'carbs',
+      title: 'Carbs',
+      valueDisplay: `${dailyTotals.carbs} g`,
+      goalDisplay: `/ ${goals.carbs} g`,
+      progress: carbsProgress,
+      progressLabel: 'of daily goal',
+      exceeded: isCarbsExceeded,
+      exceededMessage: 'Warning! You are over the carb limit',
+      barColor: theme.palette.warning.main,
+      progressBg: alpha(theme.palette.warning.main, 0.12),
+      iconBg: alpha(theme.palette.warning.main, 0.18),
+      iconColor: theme.palette.warning.main,
+      IconComponent: GrainIcon,
+      delay: 0.3,
+    },
+    {
+      key: 'fat',
+      title: 'Fat',
+      valueDisplay: `${dailyTotals.fat} g`,
+      goalDisplay: `/ ${goals.fat} g`,
+      progress: fatProgress,
+      progressLabel: 'of daily goal',
+      exceeded: isFatExceeded,
+      exceededMessage: 'Warning! You are over the fat limit',
+      barColor: theme.palette.error.main,
+      progressBg: alpha(theme.palette.error.main, 0.12),
+      iconBg: alpha(theme.palette.error.main, 0.18),
+      iconColor: theme.palette.error.main,
+      IconComponent: OpacityIcon,
+      delay: 0.4,
+    },
+  ];
+
   const getGoalLabel = (goal?: string) => {
     const goalLabels: Record<string, string> = {
       cutting: 'Cutting',
@@ -404,382 +489,237 @@ const Dashboard = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Grid container spacing={3}>
-        {/* Daily Calories Card */}
-        <Grid item xs={12} md={6} lg={3} sx={{ display: 'flex' }}>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-            style={{ width: '100%' }}
-          >
-            <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
-            <Box 
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '4px',
-                bgcolor: theme.palette.primary.main
-              }}
-            />
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" fontWeight="bold" gutterBottom>
-                Total Calories
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
-                <Typography variant="h3" fontWeight="bold" color="primary.main">
-                  {dailyTotals.calories}
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ ml: 1 }}>
-                  / {goals.calories}
-                </Typography>
-              </Box>
-              <Box sx={{ mt: 2, mb: 1 }}>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={caloriesProgress} 
-                  sx={{ 
-                    height: 8, 
-                    borderRadius: 4,
-                    backgroundColor: 'rgba(158, 27, 52, 0.1)',
-                    '& .MuiLinearProgress-bar': {
-                      backgroundColor: theme.palette.primary.main,
-                    }
-                  }}
-                />
-              </Box>
-              <Typography variant="body2" color="text.secondary">
-                {caloriesProgress}% of daily goal
-              </Typography>
-              {isCaloriesExceeded && (
-                <Typography variant="body2" color="error" sx={{ mt: 1, fontWeight: 'medium' }}>
-                  Warning! You are over the calorie limit
-                </Typography>
-              )}
-            </CardContent>
-          </Card>
-          </motion.div>
-        </Grid>
-        
-        {/* Protein Card */}
-        <Grid item xs={12} md={6} lg={3} sx={{ display: 'flex' }}>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
-            style={{ width: '100%' }}
-          >
-            <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
-            <Box 
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '4px',
-                bgcolor: theme.palette.info.main
-              }}
-            />
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" fontWeight="bold" gutterBottom>
-                Protein
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
-                <Typography variant="h3" fontWeight="bold" color="info.main">
-                  {dailyTotals.protein}
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ ml: 1 }}>
-                  g / {goals.protein}g
-                </Typography>
-              </Box>
-              <Box sx={{ mt: 2, mb: 1 }}>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={proteinProgress} 
-                  sx={{ 
-                    height: 8, 
-                    borderRadius: 4,
-                    backgroundColor: 'rgba(25, 118, 210, 0.1)',
-                    '& .MuiLinearProgress-bar': {
-                      backgroundColor: theme.palette.info.main,
-                    }
-                  }}
-                />
-              </Box>
-              <Typography variant="body2" color="text.secondary">
-                {proteinProgress}% of daily goal
-              </Typography>
-              {isProteinExceeded && (
-                <Typography variant="body2" color="error" sx={{ mt: 1, fontWeight: 'medium' }}>
-                  Warning! You are over the protein limit
-                </Typography>
-              )}
-            </CardContent>
-          </Card>
-          </motion.div>
-        </Grid>
-        
-        {/* Carbs Card */}
-        <Grid item xs={12} md={6} lg={3} sx={{ display: 'flex' }}>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.3, ease: "easeOut" }}
-            style={{ width: '100%' }}
-          >
-            <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
-            <Box 
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '4px',
-                bgcolor: theme.palette.warning.main
-              }}
-            />
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" fontWeight="bold" gutterBottom>
-                Carbs
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
-                <Typography variant="h3" fontWeight="bold" color="warning.main">
-                  {dailyTotals.carbs}
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ ml: 1 }}>
-                  g / {goals.carbs}g
-                </Typography>
-              </Box>
-              <Box sx={{ mt: 2, mb: 1 }}>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={carbsProgress} 
-                  sx={{ 
-                    height: 8, 
-                    borderRadius: 4,
-                    backgroundColor: 'rgba(255, 160, 0, 0.1)',
-                    '& .MuiLinearProgress-bar': {
-                      backgroundColor: theme.palette.warning.main,
-                    }
-                  }}
-                />
-              </Box>
-              <Typography variant="body2" color="text.secondary">
-                {carbsProgress}% of daily goal
-              </Typography>
-              {isCarbsExceeded && (
-                <Typography variant="body2" color="error" sx={{ mt: 1, fontWeight: 'medium' }}>
-                  Warning! You are over the carb limit
-                </Typography>
-              )}
-            </CardContent>
-          </Card>
-          </motion.div>
-        </Grid>
-        
-        {/* Fat Card */}
-        <Grid item xs={12} md={6} lg={3} sx={{ display: 'flex' }}>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.4, ease: "easeOut" }}
-            style={{ width: '100%' }}
-          >
-            <Card sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
-            <Box 
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '4px',
-                bgcolor: theme.palette.error.main
-              }}
-            />
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" fontWeight="bold" gutterBottom>
-                Fat
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
-                <Typography variant="h3" fontWeight="bold" color="error.main">
-                  {dailyTotals.fat}
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ ml: 1 }}>
-                  g / {goals.fat}g
-                </Typography>
-              </Box>
-              <Box sx={{ mt: 2, mb: 1 }}>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={fatProgress} 
-                  sx={{ 
-                    height: 8, 
-                    borderRadius: 4,
-                    backgroundColor: 'rgba(211, 47, 47, 0.1)',
-                    '& .MuiLinearProgress-bar': {
-                      backgroundColor: theme.palette.error.main,
-                    }
-                  }}
-                />
-              </Box>
-              <Typography variant="body2" color="text.secondary">
-                {fatProgress}% of daily goal
-              </Typography>
-              {isFatExceeded && (
-                <Typography variant="body2" color="error" sx={{ mt: 1, fontWeight: 'medium' }}>
-                  Warning! You are over the fat limit
-                </Typography>
-              )}
-            </CardContent>
-          </Card>
-          </motion.div>
-        </Grid>
-        
-        {/* Chart */}
-        <Grid item xs={12} md={8} sx={{ display: 'flex' }}>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.5, ease: "easeOut" }}
-            style={{ width: '100%' }}
-          >
-            <Card sx={{ height: '100%', minHeight: 400 }}>
-              <CardContent sx={{ p: 3, height: '100%' }}>
-                <Box sx={{ height: 'calc(100% - 40px)', pt: 1 }}>
-                  <Bar options={chartOptions} data={chartData} />
-                </Box>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </Grid>
-        
-        {/* Today's Meals */}
-        <Grid item xs={12} md={4} sx={{ display: 'flex' }}>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.6, ease: "easeOut" }}
-            style={{ width: '100%' }}
-          >
-            <Card sx={{ height: '100%', minHeight: 400 }}>
-            <CardContent sx={{ p: 3 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <RestaurantIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
-                <Typography variant="h6" fontWeight="bold">
-                  Today's Meals
-                </Typography>
-              </Box>
-              
-              <Box sx={{ maxHeight: 320, overflow: 'auto', pr: 1 }}>
-                {groupedMeals.length > 0 ? (
-                  groupedMeals.map((meal) => (
-                    <Box 
-                      key={meal.id} 
-                      sx={{ 
-                        mb: 2,
-                        pb: 2,
-                        borderBottom: 1, 
-                        borderColor: 'divider',
-                        width: '100%'
-                      }}
-                    >
-                      {/* Meal Header Row - Title and Calories */}
-                      <Box 
-                        sx={{ 
-                          display: 'grid',
-                          gridTemplateColumns: 'minmax(0, 1fr) 80px',
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+        {/* Macro Cards in Horizontal Row - Centered */}
+        <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto' }}>
+          <Grid container spacing={3.5} justifyContent="center" alignItems="stretch">
+            {macroCards.map((card, index) => {
+              const Icon = card.IconComponent;
+              return (
+                <Grid item xs={12} sm={6} md={3} key={card.key} sx={{ display: 'flex' }}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: card.delay, ease: 'easeOut' }}
+                    style={{ width: '100%' }}
+                  >
+                    <Card sx={{ position: 'relative', overflow: 'hidden', height: '100%', minHeight: 220 }}>
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
                           width: '100%',
-                          mb: 1.5,
-                          alignItems: 'center'
+                          height: '4px',
+                          bgcolor: card.barColor,
                         }}
-                      >
-                        {/* Meal Title with Count Badge */}
-                        <Box sx={{ 
-                          display: 'flex', 
-                          alignItems: 'center',
-                          minWidth: 0, // Allows text to truncate properly
-                          pr: 1
-                        }}>
-                          <Typography 
-                            variant="subtitle1" 
-                            fontWeight="medium"
-                            sx={{ 
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              mr: meal.count > 1 ? 1 : 0
+                      />
+                      <CardContent sx={{ p: 4, display: 'flex', flexDirection: 'column', height: '100%' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2.5 }}>
+                          <Box
+                            sx={{
+                              width: 52,
+                              height: 52,
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              bgcolor: card.iconBg,
                             }}
                           >
-                            {meal.meal.name}
+                            <Icon sx={{ color: card.iconColor, fontSize: 28 }} />
+                          </Box>
+                          <Typography variant="h5" fontWeight="bold">
+                            {card.title}
                           </Typography>
-                          {meal.count > 1 && (
-                            <Chip 
-                              label={`x${meal.count}`} 
-                              size="small" 
-                              color="primary" 
-                              sx={{ 
-                                height: 20, 
-                                fontSize: '0.7rem',
-                                flexShrink: 0
-                              }}
-                            />
-                          )}
                         </Box>
-                        
-                        {/* Calories */}
-                        <Typography 
-                          variant="subtitle2" 
-                          fontWeight="bold" 
-                          color="primary.main"
-                          sx={{ 
-                            textAlign: 'right',
-                            flexShrink: 0
-                          }}
-                        >
-                          {meal.total_calories} cal
+                        <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1.5 }}>
+                          <Typography variant="h2" fontWeight="bold" sx={{ color: card.barColor }}>
+                            {card.valueDisplay}
+                          </Typography>
+                          <Typography variant="h6" color="text.secondary" sx={{ ml: 1 }}>
+                            {card.goalDisplay}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ mt: 2, mb: 1.2 }}>
+                          <LinearProgress
+                            variant="determinate"
+                            value={card.progress}
+                            sx={{
+                              height: 8,
+                              borderRadius: 4,
+                              backgroundColor: card.progressBg,
+                              '& .MuiLinearProgress-bar': {
+                                backgroundColor: card.barColor,
+                              },
+                            }}
+                          />
+                        </Box>
+                        <Typography variant="body1" color="text.secondary">
+                          {card.progress}% {card.progressLabel}
                         </Typography>
-                      </Box>
-                      
-                      {/* Nutrition Details Row */}
-                      <Box 
-                        sx={{ 
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(3, 1fr)',
-                          width: '100%',
-                          gap: 1
-                        }}
-                      >
-                        <Typography variant="body2" color="info.main">
-                          P: {meal.total_protein}g
-                        </Typography>
-                        <Typography variant="body2" color="warning.main">
-                          C: {meal.total_carbs}g
-                        </Typography>
-                        <Typography variant="body2" color="error.main">
-                          F: {meal.total_fat}g
-                        </Typography>
-                      </Box>
+                        {card.exceeded && (
+                          <Typography variant="body1" color="error" sx={{ mt: 1, fontWeight: 'medium' }}>
+                            {card.exceededMessage}
+                          </Typography>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </Grid>
+              );
+            })}
+          </Grid>
+        </Box>
+
+        {/* Today's Meals and Chart - Centered */}
+        <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto' }}>
+          <Grid container spacing={3.5} justifyContent="center" alignItems="stretch">
+            {/* Today's Meals */}
+            <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.5, ease: "easeOut" }}
+                style={{ width: '100%' }}
+              >
+                <Card sx={{ height: '100%', minHeight: 420, width: '100%' }}>
+                  <CardContent sx={{ p: 4 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <RestaurantIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
+                      <Typography variant="h6" fontWeight="bold">
+                        Today's Meals
+                      </Typography>
                     </Box>
-                  ))
-                ) : (
-                  <Box sx={{ py: 4, textAlign: 'center' }}>
-                    <RestaurantIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
-                    <Typography variant="body1" color="text.secondary">
-                      No meals logged today
-                    </Typography>
-                    <Typography variant="body2" color="text.disabled">
-                      Go to "Log Meal" to add one!
-                    </Typography>
-                  </Box>
-                )}
-              </Box>
-            </CardContent>
-          </Card>
-          </motion.div>
-        </Grid>
-      </Grid>
+                    
+                    <Box sx={{ maxHeight: 320, overflow: 'auto', pr: 1 }}>
+                      {groupedMeals.length > 0 ? (
+                        groupedMeals.map((meal) => (
+                          <Box 
+                            key={meal.id} 
+                            sx={{ 
+                              mb: 2,
+                              pb: 2,
+                              borderBottom: 1, 
+                              borderColor: 'divider',
+                              width: '100%'
+                            }}
+                          >
+                            {/* Meal Header Row - Title and Calories */}
+                            <Box 
+                              sx={{ 
+                                display: 'grid',
+                                gridTemplateColumns: 'minmax(0, 1fr) 80px',
+                                width: '100%',
+                                mb: 1.5,
+                                alignItems: 'center'
+                              }}
+                            >
+                              {/* Meal Title with Count Badge */}
+                              <Box sx={{ 
+                                display: 'flex', 
+                                alignItems: 'center',
+                                minWidth: 0,
+                                pr: 1
+                              }}>
+                                <Typography 
+                                  variant="subtitle1" 
+                                  fontWeight="medium"
+                                  sx={{ 
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    mr: meal.count > 1 ? 1 : 0
+                                  }}
+                                >
+                                  {meal.meal.name}
+                                </Typography>
+                                {meal.count > 1 && (
+                                  <Chip 
+                                    label={`x${meal.count}`} 
+                                    size="small" 
+                                    color="primary" 
+                                    sx={{ 
+                                      height: 20, 
+                                      fontSize: '0.7rem',
+                                      flexShrink: 0
+                                    }}
+                                  />
+                                )}
+                              </Box>
+                              
+                              {/* Calories */}
+                              <Typography 
+                                variant="subtitle2" 
+                                fontWeight="bold" 
+                                color="primary.main"
+                                sx={{ 
+                                  textAlign: 'right',
+                                  flexShrink: 0
+                                }}
+                              >
+                                {meal.total_calories} cal
+                              </Typography>
+                            </Box>
+                            
+                            {/* Nutrition Details Row */}
+                            <Box 
+                              sx={{ 
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(3, 1fr)',
+                                width: '100%',
+                                gap: 1
+                              }}
+                            >
+                              <Typography variant="body2" color="info.main">
+                                P: {meal.total_protein}g
+                              </Typography>
+                              <Typography variant="body2" color="warning.main">
+                                C: {meal.total_carbs}g
+                              </Typography>
+                              <Typography variant="body2" color="error.main">
+                                F: {meal.total_fat}g
+                              </Typography>
+                            </Box>
+                          </Box>
+                        ))
+                      ) : (
+                        <Box sx={{ py: 4, textAlign: 'center' }}>
+                          <RestaurantIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
+                          <Typography variant="body1" color="text.secondary">
+                            No meals logged today
+                          </Typography>
+                          <Typography variant="body2" color="text.disabled">
+                            Go to "Log Meal" to add one!
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </Grid>
+            
+            {/* Macronutrient Breakdown Chart */}
+            <Grid item xs={12} md={6} sx={{ display: 'flex' }}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.6, ease: "easeOut" }}
+                style={{ width: '100%' }}
+              >
+                <Card sx={{ height: '100%', minHeight: 420, width: '100%' }}>
+                  <CardContent sx={{ p: 4, height: '100%' }}>
+                    <Box sx={{ height: '100%', pt: 1 }}>
+                      <Bar options={chartOptions} data={chartData} />
+                    </Box>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </Grid>
+          </Grid>
+        </Box>
+      </Box>
         </motion.div>
       )}
 
