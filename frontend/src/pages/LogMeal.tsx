@@ -22,8 +22,8 @@ const LogMeal = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDiningHall, setSelectedDiningHall] = useState<number | ''>('');
-  const [selectedCategory, setSelectedCategory] = useState<number | ''>('');
+  const [selectedDiningHall, setSelectedDiningHall] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [meals, setMeals] = useState<Meal[]>([]);
   const [diningHalls, setDiningHalls] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
@@ -61,8 +61,8 @@ const LogMeal = () => {
     try {
       const params: any = {};
       if (searchQuery) params.search = searchQuery;
-      if (selectedDiningHall) params.dining_hall_id = selectedDiningHall;
-      if (selectedCategory) params.category_id = selectedCategory;
+      if (selectedDiningHall) params.dining_hall_id = Number(selectedDiningHall);
+      if (selectedCategory) params.category_id = Number(selectedCategory);
       
       const data = await getMeals(params);
       setMeals(data);
@@ -147,32 +147,50 @@ const LogMeal = () => {
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <FormControl fullWidth size="small">
-                <InputLabel id="dining-hall-label">Dining Hall</InputLabel>
+                <InputLabel id="dining-hall-label" shrink>Dining Hall</InputLabel>
                 <Select
                   labelId="dining-hall-label"
                   value={selectedDiningHall}
                   label="Dining Hall"
-                  onChange={(e) => setSelectedDiningHall(e.target.value as number)}
+                  onChange={(e) => setSelectedDiningHall(e.target.value as string)}
+                  displayEmpty
+                  notched
+                  renderValue={(value) => {
+                    if (value === '') {
+                      return <Box sx={{ color: 'text.secondary' }}>All Dining Halls</Box>;
+                    }
+                    const hall = diningHalls.find((h) => String(h.id) === value);
+                    return hall?.name ?? '';
+                  }}
                 >
                   <MenuItem value="">All</MenuItem>
                   {diningHalls.map((hall) => (
-                    <MenuItem key={hall.id} value={hall.id}>{hall.name}</MenuItem>
+                    <MenuItem key={hall.id} value={String(hall.id)}>{hall.name}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
             <Grid item xs={6}>
               <FormControl fullWidth size="small">
-                <InputLabel id="category-label">Category</InputLabel>
+                <InputLabel id="category-label" shrink>Category</InputLabel>
                 <Select
                   labelId="category-label"
                   value={selectedCategory}
                   label="Category"
-                  onChange={(e) => setSelectedCategory(e.target.value as number)}
+                  onChange={(e) => setSelectedCategory(e.target.value as string)}
+                  displayEmpty
+                  notched
+                  renderValue={(value) => {
+                    if (value === '') {
+                      return <Box sx={{ color: 'text.secondary' }}>All Categories</Box>;
+                    }
+                    const category = categories.find((cat) => String(cat.id) === value);
+                    return category?.name ?? '';
+                  }}
                 >
                   <MenuItem value="">All</MenuItem>
                   {categories.map((cat) => (
-                    <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+                    <MenuItem key={cat.id} value={String(cat.id)}>{cat.name}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -269,18 +287,43 @@ const LogMeal = () => {
                     <Typography variant="h6" fontWeight="bold" gutterBottom>
                       {meal.name}
                     </Typography>
-                    <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      useFlexGap
+                      sx={{ mb: 1, flexWrap: 'wrap' }}
+                    >
                       <Chip 
                         label={meal.dining_hall} 
                         size="small" 
                         icon={<StorefrontIcon />}
-                        sx={{ fontSize: '0.7rem' }}
+                        sx={{ 
+                          fontSize: '0.7rem',
+                          overflow: 'visible',
+                          height: 'auto',
+                          '& .MuiChip-label': {
+                            display: 'block',
+                            whiteSpace: 'normal',
+                            overflow: 'visible',
+                            textOverflow: 'clip'
+                          }
+                        }}
                       />
                       <Chip 
                         label={meal.category} 
                         size="small" 
                         color="secondary"
-                        sx={{ fontSize: '0.7rem' }}
+                        sx={{ 
+                          fontSize: '0.7rem',
+                          overflow: 'visible',
+                          height: 'auto',
+                          '& .MuiChip-label': {
+                            display: 'block',
+                            whiteSpace: 'normal',
+                            overflow: 'visible',
+                            textOverflow: 'clip'
+                          }
+                        }}
                       />
                     </Stack>
                     {meal.description && (
