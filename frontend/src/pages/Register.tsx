@@ -12,9 +12,14 @@ import {
   Typography,
   Alert,
   CircularProgress,
+  IconButton,
+  InputAdornment,
 } from '@mui/material';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
+import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -32,6 +37,8 @@ const Register = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -59,9 +66,21 @@ const Register = () => {
       return;
     }
 
-    // Validate password length
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+    // Validate password strength (client-side check before backend)
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+    if (!/[A-Z]/.test(formData.password)) {
+      setError('Password must contain at least one uppercase letter');
+      return;
+    }
+    if (!/[a-z]/.test(formData.password)) {
+      setError('Password must contain at least one lowercase letter');
+      return;
+    }
+    if (!/[0-9]/.test(formData.password)) {
+      setError('Password must contain at least one number');
       return;
     }
 
@@ -162,29 +181,60 @@ const Register = () => {
                     disabled={loading}
                   />
 
-                  <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
-                    <TextField
-                      name="password"
-                      type="password"
-                      label="Password"
-                      fullWidth
-                      required
-                      value={formData.password}
-                      onChange={handleChange}
-                      disabled={loading}
-                      helperText="Minimum 6 characters"
-                    />
-                    <TextField
-                      name="confirmPassword"
-                      type="password"
-                      label="Confirm Password"
-                      fullWidth
-                      required
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      disabled={loading}
-                    />
-                  </Box>
+                  <TextField
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    label="Password"
+                    fullWidth
+                    required
+                    value={formData.password}
+                    onChange={handleChange}
+                    disabled={loading}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                            disabled={loading}
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <PasswordStrengthIndicator password={formData.password} />
+
+                  <TextField
+                    name="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    label="Confirm Password"
+                    fullWidth
+                    required
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    disabled={loading}
+                    error={formData.confirmPassword.length > 0 && formData.password !== formData.confirmPassword}
+                    helperText={
+                      formData.confirmPassword.length > 0 && formData.password !== formData.confirmPassword
+                        ? 'Passwords do not match'
+                        : ''
+                    }
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            edge="end"
+                            disabled={loading}
+                          >
+                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
 
                   {/* Nutrition Goals */}
                   <Typography variant="h6" sx={{ fontWeight: 600, mt: 2 }}>

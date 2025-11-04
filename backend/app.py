@@ -4,6 +4,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from dotenv import load_dotenv
 import os
+import re
 from datetime import datetime, timedelta
 
 # Load environment variables (like database password)
@@ -49,6 +50,17 @@ def register():
         for field in required_fields:
             if field not in data or not data[field]:
                 return jsonify({'error': f'{field} is required'}), 400
+        
+        # Validate password strength
+        password = data['password']
+        if len(password) < 8:
+            return jsonify({'error': 'Password must be at least 8 characters long'}), 400
+        if not re.search(r'[A-Z]', password):
+            return jsonify({'error': 'Password must contain at least one uppercase letter'}), 400
+        if not re.search(r'[a-z]', password):
+            return jsonify({'error': 'Password must contain at least one lowercase letter'}), 400
+        if not re.search(r'[0-9]', password):
+            return jsonify({'error': 'Password must contain at least one number'}), 400
         
         # Check if user already exists
         if User.query.filter_by(email=data['email']).first():
