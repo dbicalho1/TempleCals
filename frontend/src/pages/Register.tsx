@@ -190,6 +190,19 @@ const Register = () => {
                     value={formData.password}
                     onChange={handleChange}
                     disabled={loading}
+                    autoComplete="new-password"
+                    sx={{ 
+                      '& input[type="password"]::-ms-reveal': {
+                        display: 'none',
+                      },
+                      '& input[type="password"]::-webkit-credentials-auto-fill-button': {
+                        display: 'none !important',
+                        visibility: 'hidden',
+                        pointerEvents: 'none',
+                        position: 'absolute',
+                        right: 0,
+                      },
+                    }}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
@@ -215,12 +228,25 @@ const Register = () => {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     disabled={loading}
+                    autoComplete="new-password"
                     error={formData.confirmPassword.length > 0 && formData.password !== formData.confirmPassword}
                     helperText={
                       formData.confirmPassword.length > 0 && formData.password !== formData.confirmPassword
                         ? 'Passwords do not match'
                         : ''
                     }
+                    sx={{ 
+                      '& input[type="password"]::-ms-reveal': {
+                        display: 'none',
+                      },
+                      '& input[type="password"]::-webkit-credentials-auto-fill-button': {
+                        display: 'none !important',
+                        visibility: 'hidden',
+                        pointerEvents: 'none',
+                        position: 'absolute',
+                        right: 0,
+                      },
+                    }}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">

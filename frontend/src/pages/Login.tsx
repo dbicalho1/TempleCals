@@ -126,7 +126,20 @@ const Login = () => {
                     value={formData.password}
                     onChange={handleChange}
                     disabled={loading}
-                    sx={{ borderRadius: 2 }}
+                    autoComplete="current-password"
+                    sx={{ 
+                      borderRadius: 2,
+                      '& input[type="password"]::-ms-reveal': {
+                        display: 'none',
+                      },
+                      '& input[type="password"]::-webkit-credentials-auto-fill-button': {
+                        display: 'none !important',
+                        visibility: 'hidden',
+                        pointerEvents: 'none',
+                        position: 'absolute',
+                        right: 0,
+                      },
+                    }}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
