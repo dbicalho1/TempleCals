@@ -1,17 +1,14 @@
 import { useState, useEffect } from 'react';
 import { 
   Container, Typography, TextField, Button, 
-  Box, Card, CardContent, Grid as MuiGrid, List, ListItem, 
-  ListItemText, Divider, Alert, Stack, Chip, useTheme,
-  Avatar, IconButton, Fade, CircularProgress, FormControl,
+  Box, Card, CardContent, Grid as MuiGrid, 
+  Divider, Alert, Stack, Chip, useTheme,
+  Fade, CircularProgress, FormControl,
   InputLabel, Select, MenuItem
 } from '@mui/material';
 import { getMeals, logMeal, Meal, getDiningHalls, getMealCategories } from '../services/api';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
-import FastfoodIcon from '@mui/icons-material/Fastfood';
-import SendIcon from '@mui/icons-material/Send';
 import StorefrontIcon from '@mui/icons-material/Storefront';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
@@ -46,7 +43,6 @@ const LogMeal = () => {
         setCategories(categoriesData);
         setMeals(mealsData);
       } catch (err) {
-        console.error('Error loading data:', err);
         setError('Failed to load meals data');
       } finally {
         setIsInitialLoad(false);

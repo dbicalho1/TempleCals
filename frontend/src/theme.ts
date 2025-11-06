@@ -1,11 +1,6 @@
 import { createTheme, PaletteMode } from '@mui/material/styles';
 import { ThemeOptions } from '@mui/material';
 
-// Cherry color from Temple University
-// Cherry: #9E1B34
-
-// Create theme based on mode (light or dark)
-// Global styles to override MUI default focus visible styles
 const globalStyles = {
   '& .MuiButtonBase-root': {
     '&:focus': {
@@ -35,7 +30,7 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => ({
   palette: {
     mode,
     primary: {
-      main: '#9D2235', // Cherry-inspired color
+      main: '#9D2235',
       light: '#FF8A8F',
       dark: '#E03A3E',
       contrastText: '#FFFFFF',
@@ -227,10 +222,7 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => ({
   },
 });
 
-// Create the light theme (default)
 const lightTheme = createTheme(getThemeOptions('light'));
-
-// Create the dark theme
 const darkTheme = createTheme(getThemeOptions('dark'));
 
 export { lightTheme, darkTheme };

@@ -11,7 +11,6 @@ import Dashboard from './pages/Dashboard';
 import LogMeal from './pages/LogMeal';
 import Search from './pages/Search';
 import Profile from './pages/Profile';
-import './App.css';
 
 function App() {
   return (

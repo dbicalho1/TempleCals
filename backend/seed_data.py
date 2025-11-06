@@ -12,7 +12,6 @@ def seed_database():
     """Add sample Temple University dining data"""
     
     with app.app_context():
-        # Clear existing data (optional - remove if you want to keep existing data)
         print("Clearing existing data...")
         Meal.query.delete()
         MealCategory.query.delete()

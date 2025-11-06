@@ -26,7 +26,7 @@ const Search = () => {
         setSearchResults(mealsData);
         setDiningHalls(hallsData);
       } catch (err) {
-        console.error('Error loading data:', err);
+        // Error loading data
       } finally {
         setIsLoading(false);
       }

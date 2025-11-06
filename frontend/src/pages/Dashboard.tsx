@@ -115,7 +115,6 @@ const Dashboard = () => {
       setGroupedMeals(groupIdenticalMeals(data.meals));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load meals');
-      console.error('Error fetching daily meals:', err);
     } finally {
       setIsLoading(false);
     }
@@ -127,7 +126,6 @@ const Dashboard = () => {
       // Refresh data after deletion
       await fetchDailyData();
     } catch (err) {
-      console.error('Error deleting meal:', err);
       alert('Failed to delete meal');
     }
   };
